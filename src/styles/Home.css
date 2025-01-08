@@ -1,0 +1,33 @@
+/* Conteneur principal */
+.container-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 120px); /* Ajuste la hauteur totale moins la Navbar et Footer */
+  padding: 0 20px; /* Ajout de marges latérales */
+}
+
+/* Contenu en deux colonnes */
+.content {
+  display: flex;
+  gap: 40px; /* Espacement entre les colonnes */
+  align-items: center;
+  justify-content: center;
+}
+
+/* Colonne de gauche */
+.image-container img {
+  max-width: 500px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Colonne de droite */
+.form-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
