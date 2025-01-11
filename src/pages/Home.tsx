@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../styles/Home.css';
-import StudyImage from '../assets/images/home-image.png';
+import '../styles/styles.css'; // Unique fichier CSS pour éviter les conflits
+import { FaEnvelope, FaLock } from 'react-icons/fa';
 
 const Home: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [profile, setProfile] = useState('Étudiant');
+  const [profile, setProfile] = useState('Student');
   const [remember, setRemember] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -16,14 +16,12 @@ const Home: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation des champs vides
     if (!email.trim() || !password.trim()) {
-      setMessage('Veuillez saisir une adresse email et un mot de passe.');
+      setMessage('Please enter an email address and password.');
       return;
     }
 
     try {
-      // Appeler l'API de connexion
       const response = await axios.post('http://localhost:5000/login', {
         email,
         password,
@@ -31,32 +29,33 @@ const Home: React.FC = () => {
 
       const { user } = response.data;
 
-      // Vérification du rôle et redirection
-      if (user.role === 'Étudiant' && profile === 'Étudiant') {
-        localStorage.setItem('user', JSON.stringify(user)); // Stocker les infos utilisateur
-        navigate('/students'); // Redirige vers la page Étudiants
-      } else if (user.role === 'Professeur' && profile === 'Professeur') {
-        localStorage.setItem('user', JSON.stringify(user)); // Stocker les infos utilisateur
-        navigate('/teachers'); // Redirige vers la page Professeurs
+      if (remember) {
+        localStorage.setItem('user', JSON.stringify(user));
       } else {
-        setMessage('Le rôle sélectionné ne correspond pas à votre compte.');
+        sessionStorage.setItem('user', JSON.stringify(user));
+      }
+
+      if (user.role === 'Student' && profile === 'Student') {
+        navigate('/students');
+      } else if (user.role === 'Professor' && profile === 'Professor') {
+        navigate('/teachers');
+      } else {
+        setMessage('The selected role does not match your account.');
       }
     } catch (err: any) {
-      setMessage(err.response?.data?.message || 'Erreur de connexion.');
+      setMessage(err.response?.data?.message || 'Connexion Error.');
     }
   };
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation des champs vides
     if (!email.trim() || !password.trim()) {
-      setMessage('Veuillez saisir une adresse email et un mot de passe.');
+      setMessage('Please enter an email address and password.');
       return;
     }
 
     try {
-      // Appeler l'API d'inscription
       const response = await axios.post('http://localhost:5000/register', {
         email,
         password,
@@ -64,82 +63,80 @@ const Home: React.FC = () => {
       });
       setMessage(response.data.message);
     } catch (err: any) {
-      setMessage(err.response?.data?.message || 'Erreur lors de l\'inscription.');
+      setMessage(err.response?.data?.message || 'Error while registering.');
     }
   };
 
   return (
-    <div>
-      {/* Contenu principal */}
-      <main className="container-main">
-        <div className="content">
-          {/* Colonne de gauche avec l'image */}
-          <div className="image-container">
-            <img src={StudyImage} alt="Study Illustration" />
-          </div>
-
-          {/* Colonne de droite avec le formulaire */}
-          <div className="form-container">
-            <h1>Bienvenue sur MLEARN</h1>
-            <form>
-              <div className="form-group">
-                <label htmlFor="email">Adresse Email</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  id="email"
-                  placeholder="Entrez votre email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="password">Mot de Passe</label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="password"
-                  placeholder="Entrez votre mot de passe"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="profile">Profil</label>
-                <select
-                  className="form-control"
-                  id="profile"
-                  value={profile}
-                  onChange={(e) => setProfile(e.target.value)}
-                >
-                  <option>Étudiant</option>
-                  <option>Professeur</option>
-                </select>
-              </div>
-              <div className="form-check">
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  id="remember"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="remember">Se rappeler du mot de passe</label>
-              </div>
-              <div className="d-flex gap-3 mt-3">
-                <button onClick={handleLogin} className="btn btn-primary">
-                  <i className="fas fa-sign-in-alt"></i> Login
-                </button>
-                <button onClick={handleSubscribe} className="btn btn-secondary">
-                  <i className="fas fa-user-plus"></i> Souscrire
-                </button>
-              </div>
-            </form>
-            {message && <p className="mt-3 text-danger">{message}</p>}
-          </div>
+    <div className="home-container">
+  <div className="home-form">
+    <h1 className="home-title">Welcome to MLEARN</h1>
+    <form>
+      <div className="form-group">
+        <label htmlFor="email">Email Adress:</label>
+        <div className="input-with-icon">
+          <FaEnvelope className="input-icon" />
+          <input
+            type="email"
+            className="form-control"
+            id="email"
+            placeholder="Enter your email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
-      </main>
-    </div>
+      </div>
+      <div className="form-group">
+        <label htmlFor="password">Password:</label>
+        <div className="input-with-icon">
+          <FaLock className="input-icon" />
+          <input
+            type="password"
+            className="form-control"
+            id="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className="form-group">
+        <label htmlFor="profile">Profil:</label>
+        <select
+          className="form-control"
+          id="profile"
+          value={profile}
+          onChange={(e) => setProfile(e.target.value)}
+        >
+          <option>Student</option>
+          <option>Professor</option>
+        </select>
+      </div>
+      <div className="form-check">
+        <input
+          type="checkbox"
+          className="form-check-input"
+          id="remember"
+          checked={remember}
+          onChange={(e) => setRemember(e.target.checked)}
+        />
+        <label className="form-check-label" htmlFor="remember">
+          Remember the password
+        </label>
+      </div>
+      <div className="d-flex gap-3 mt-3">
+        <button onClick={handleLogin} className="btn btn-primary">
+          Login
+        </button>
+        <button onClick={handleSubscribe} className="btn btn-secondary">
+          Sign up
+        </button>
+      </div>
+    </form>
+    {message && <p className="text-danger">{message}</p>}
+  </div>
+</div>
+
   );
 };
 

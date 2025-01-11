@@ -1,17 +1,18 @@
 import React from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import '../styles/styles.css'; // Unique fichier CSS
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Navbar toujours visible */}
       <Navbar />
 
       {/* Contenu principal */}
-      <div style={{ marginTop: '70px', minHeight: 'calc(100vh - 120px)' }}>
+      <main style={{ flex: '1', marginTop: '60px', padding: '20px' }}>
         {children}
-      </div>
+      </main>
 
       {/* Footer toujours visible */}
       <Footer />

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import '../styles/styles.css'; // Unique fichier CSS pour éviter les conflits
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -17,65 +18,82 @@ const Navbar: React.FC = () => {
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
       <div className="container">
         {/* Titre de la barre */}
-        <Link className="navbar-brand" to={user ? (user.role === 'Professeur' ? '/teachers' : '/students') : '/'}>
+        <Link
+          className="navbar-brand"
+          to={user ? (user.role === 'Professeur' ? '/teachers' : '/students') : '/'}
+        >
           MLEARN
         </Link>
 
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            {/* Si l'utilisateur est un étudiant */}
-            {user?.role === 'Étudiant' ? (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/students">
-                    Accueil
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/students/profile">
-                    Profil
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/students/courses">
-                    Cours
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <button className="btn btn-link nav-link" onClick={handleLogout}>
-                    Se déconnecter
-                  </button>
-                </li>
-              </>
-            ) : user?.role === 'Professeur' ? (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/teachers">
-                    Accueil
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/teachers/profile">
-                    Profil
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/teachers/courses">
-                    Cours
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <button className="btn btn-link nav-link" onClick={handleLogout}>
-                    Se déconnecter
-                  </button>
-                </li>
-              </>
-            ) : (
-              // Pas de liens supplémentaires pour la page Home
-              <></>
-            )}
-          </ul>
-        </div>
+        {/* Bouton de menu responsive */}
+        {user && (
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+        )}
+
+        {/* Liens de navigation (affichés uniquement après connexion) */}
+        {user && (
+          <div className="collapse navbar-collapse" id="navbarNav">
+            <ul className="navbar-nav ms-auto">
+              {user.role === 'Étudiant' ? (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/students">
+                      Accueil
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/students/profile">
+                      Profil
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/students/courses">
+                      Cours
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <button className="btn btn-link nav-link" onClick={handleLogout}>
+                      Se déconnecter
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/teachers">
+                      Accueil
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/teachers/profile">
+                      Profil
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/teachers/courses">
+                      Cours
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <button className="btn btn-link nav-link" onClick={handleLogout}>
+                      Se déconnecter
+                    </button>
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+        )}
       </div>
     </nav>
   );

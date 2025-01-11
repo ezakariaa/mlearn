@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+.container {
+  flex: 1; /* S'assure que le contenu prend tout l'espace disponible */
+}

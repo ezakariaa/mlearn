@@ -7,7 +7,9 @@ import StudentProfile from './pages/StudentProfile';
 import StudentCourses from './pages/StudentCourses';
 import TeacherProfile from './pages/TeacherProfile';
 import TeacherCourses from './pages/TeacherCourses';
+import AddCourse from './pages/AddCourse';
 import Layout from './components/Layout';
+import './App.css';
 
 const App: React.FC = () => {
   return (
@@ -20,6 +22,7 @@ const App: React.FC = () => {
         <Route path="/teachers" element={<Layout><Teachers /></Layout>} />
         <Route path="/teachers/profile" element={<Layout><TeacherProfile /></Layout>} />
         <Route path="/teachers/courses" element={<Layout><TeacherCourses /></Layout>} />
+        <Route path="/add-course" element={<AddCourse />} />
       </Routes>
     </Router>
   );

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Layout from '../components/Layout';
-import '../styles/StudentProfile.css'; 
-import defaultStudentAvatar from '../assets/images/student-ava.png'; // Import de l'image par défaut
+import '../styles/TeacherProfile.css'; // Utilisez le même fichier CSS que StudentProfile
+import defaultTeacherAvatar from '../assets/images/teacher-ava.png'; // Import de l'image par défaut
 
-const StudentProfile: React.FC = () => {
+const TeacherProfile: React.FC = () => {
   const [user, setUser] = useState({
     name: '',
     email: '',
     phone: '',
     city: '',
     country: '',
-    role: 'Étudiant',
-    profilePicture: defaultStudentAvatar, // Image par défaut pour l'étudiant
+    role: 'Professeur',
+    profilePicture: defaultTeacherAvatar, // Image par défaut pour le professeur
   });
   const [isEditing, setIsEditing] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -23,7 +23,7 @@ const StudentProfile: React.FC = () => {
     setUser((prev) => ({
       ...prev,
       ...storedUser,
-      profilePicture: storedUser.profilePicture || defaultStudentAvatar,
+      profilePicture: storedUser.profilePicture || defaultTeacherAvatar,
     }));
   }, []);
 
@@ -187,7 +187,7 @@ const StudentProfile: React.FC = () => {
 
           <div className="profile-avatar">
             <img
-              src={user.profilePicture || defaultStudentAvatar}
+              src={user.profilePicture || defaultTeacherAvatar}
               alt="Avatar utilisateur"
               className="img-thumbnail"
             />
@@ -199,4 +199,4 @@ const StudentProfile: React.FC = () => {
   );
 };
 
-export default StudentProfile;
+export default TeacherProfile;

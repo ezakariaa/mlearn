@@ -8,21 +8,27 @@ const Teachers: React.FC = () => {
   // Fonction pour gérer la déconnexion
   const handleLogout = () => {
     localStorage.clear();
-    navigate('/'); // Rediriger vers la page d'accueil
+    navigate('/'); // Redirige vers la page d'accueil
   };
 
   return (
     <Layout>
-      <div className="container mt-5">
+      <div className="teacher-container">
         <h1>Bienvenue dans votre espace professeur</h1>
         <p>Gérez vos cours et consultez votre profil.</p>
 
         {/* Liens rapides */}
-        <div className="mt-4">
-          <button className="btn btn-primary me-3" onClick={() => navigate('/teachers/profile')}>
+        <div className="d-flex mt-4">
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate('/teachers/profile')}
+          >
             Profil
           </button>
-          <button className="btn btn-secondary" onClick={() => navigate('/teachers/courses')}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => navigate('/teachers/courses')}
+          >
             Cours
           </button>
         </div>
@@ -30,7 +36,7 @@ const Teachers: React.FC = () => {
         {/* Bouton de déconnexion */}
         <div className="mt-4">
           <button className="btn btn-danger" onClick={handleLogout}>
-            Se déconnecter
+            Quitter
           </button>
         </div>
       </div>

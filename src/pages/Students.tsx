@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import '../styles/styles.css';
 
 const Students: React.FC = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const Students: React.FC = () => {
 
   return (
     <Layout>
-      <div className="container mt-5">
+      <div className="caontainer mt-5">
         <h1>Bienvenue dans votre espace étudiant</h1>
         <p>Explorez vos cours et gérez votre profil.</p>
 

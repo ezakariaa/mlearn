@@ -1,0 +1,129 @@
+/* Réinitialisation de base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Conteneur principal pour Teachers */
+.teacher-container {
+  margin: 90px auto 20px; /* Remonte le contenu sous la Navbar */
+  max-width: 1100px; /* Limite la largeur */
+  text-align: left; /* Contenu aligné à gauche */
+  padding: 20px;
+}
+
+/* Titres */
+h1 {
+  font-size: 26px;
+  margin-bottom: 15px;
+  color: #333;
+  font-weight: bold;
+}
+
+/* Paragraphes */
+p {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+/* Boutons */
+button {
+  width: 150px;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #a71d2a;
+}
+
+/* Alignement des boutons */
+.d-flex {
+  display: flex;
+  justify-content: flex-start; /* Aligne les boutons à gauche */
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  .teacher-container {
+    padding: 10px;
+    margin: 60px auto; /* Réduit la marge pour les écrans moyens */
+  }
+
+  h1 {
+    font-size: 22px;
+    text-align: center;
+  }
+
+  p {
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .d-flex {
+    justify-content: center; /* Centre les boutons sur les petits écrans */
+  }
+
+  button {
+    width: 100%; /* Boutons prennent toute la largeur */
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 20px;
+  }
+
+  p {
+    font-size: 12px;
+  }
+
+  footer {
+    font-size: 12px;
+  }
+}
