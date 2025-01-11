@@ -18,15 +18,15 @@ body {
 }
 
 /* Conteneur principal pour Teachers */
-.teacher-container {
-  margin: 90px auto 20px; /* Remonte le contenu sous la Navbar */
+.caontainer {
+  margin: 90px auto 20px; /* Ajuste la marge pour être légèrement sous la Navbar */
   max-width: 1100px; /* Limite la largeur */
   text-align: left; /* Contenu aligné à gauche */
-  padding: 20px;
+  padding: 20px; /* Espacement pour un contenu bien espacé */
 }
 
 /* Titres */
-h1 {
+h1.home-title, h1 {
   font-size: 26px;
   margin-bottom: 15px;
   color: #333;
@@ -90,12 +90,12 @@ button {
 
 /* Responsiveness */
 @media (max-width: 768px) {
-  .teacher-container {
+  .caontainer {
     padding: 10px;
     margin: 60px auto; /* Réduit la marge pour les écrans moyens */
   }
 
-  h1 {
+  h1.home-title, h1 {
     font-size: 22px;
     text-align: center;
   }
@@ -115,7 +115,7 @@ button {
 }
 
 @media (max-width: 480px) {
-  h1 {
+  h1.home-title, h1 {
     font-size: 20px;
   }
 
@@ -126,4 +126,68 @@ button {
   footer {
     font-size: 12px;
   }
+}
+
+/* Message d'erreur */
+.text-danger {
+  text-align: center;
+  color: #dc3545;
+  margin-top: 10px;
+}
+
+/* Conteneur principal pour Home */
+.home-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 120px); /* Hauteur de la page moins Navbar et Footer */
+  padding: 20px;
+}
+
+/* Formulaire principal */
+.home-form {
+  width: 100%;
+  max-width: 400px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Champs avec icône */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 16px;
+  color: #007bff;
+}
+
+.input-with-icon input {
+  padding-left: 40px;
+  width: 100%;
+  height: 40px;
+  border: 1px solid #b4b4b4;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: rgb(231, 231, 231);
+}
+
+/* Checkbox */
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-check-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
 }
