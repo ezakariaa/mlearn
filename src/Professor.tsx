@@ -109,7 +109,7 @@ const Professor: React.FC = () => {
         {message && <p className="text-danger text-left">{message}</p>}
 
         {filteredCourses.length === 0 ? (
-          <p className="text-left">No courses found for the selected category.</p>
+          <p className="text-left">No courses created by You, Professor.</p>
         ) : (
           <ul className="list-group">
             {filteredCourses.map((course) => (

@@ -18,7 +18,6 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME,
 });
 
-// Vérifier la connexion
 db.connect((err) => {
   if (err) {
     console.error('Erreur de connexion à la base de données :', err);
@@ -27,7 +26,7 @@ db.connect((err) => {
   console.log('Connecté à la base de données MySQL.');
 });
 
-// Route API pour l'inscription
+// 1. Inscription d'un utilisateur
 app.post('/api/signup', (req, res) => {
   const { email, password, role } = req.body;
 
@@ -58,7 +57,7 @@ app.post('/api/signup', (req, res) => {
   });
 });
 
-// Route API pour la connexion
+// 2. Connexion d'un utilisateur
 app.post('/api/login', (req, res) => {
   const { email, password, role } = req.body;
 
@@ -86,12 +85,28 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// Route API pour récupérer les cours d'un professeur
+// 3. Récupérer tous les cours
+app.get('/api/courses', (req, res) => {
+  const query = 'SELECT * FROM courses';
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la récupération des cours :', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+// 4. Récupérer les cours d'un professeur
 app.get('/api/professor/:id/courses', (req, res) => {
   const professorId = parseInt(req.params.id);
 
   if (!professorId) {
-    return res.status(400).send('Professor ID is required.');
+    res.status(400).send('Professor ID is required.');
+    return;
   }
 
   const query = 'SELECT * FROM courses WHERE professor_id = ?';
@@ -99,18 +114,17 @@ app.get('/api/professor/:id/courses', (req, res) => {
   db.query(query, [professorId], (err, results) => {
     if (err) {
       console.error('Erreur lors de la récupération des cours :', err);
-      return res.status(500).send('Server error');
+      res.status(500).send('Server error');
+      return;
     }
 
     res.status(200).json(results);
   });
 });
 
-
-
-// Route API pour supprimer un cours
+// 5. Supprimer un cours
 app.delete('/api/courses/:id', (req, res) => {
-  const courseId = parseInt(req.params.id, 10);
+  const courseId = parseInt(req.params.id);
 
   if (isNaN(courseId)) {
     res.status(400).send('Invalid course ID.');
@@ -118,6 +132,7 @@ app.delete('/api/courses/:id', (req, res) => {
   }
 
   const query = 'DELETE FROM courses WHERE id = ?';
+
   db.query(query, [courseId], (err) => {
     if (err) {
       console.error('Erreur lors de la suppression du cours :', err);
@@ -129,16 +144,40 @@ app.delete('/api/courses/:id', (req, res) => {
   });
 });
 
-// Exemple d'API : Récupérer tous les utilisateurs
-app.get('/api/users', (req, res) => {
-  const query = 'SELECT * FROM users';
+// 6. Récupérer les cours disponibles pour un étudiant
+app.get('/api/student/:id/available-courses', (req, res) => {
+  const query = 'SELECT * FROM courses';
+
   db.query(query, (err, results) => {
     if (err) {
-      console.error('Erreur lors de la récupération des utilisateurs :', err);
+      console.error('Erreur lors de la récupération des cours disponibles :', err);
       res.status(500).send('Server error');
       return;
     }
-    res.json(results);
+
+    res.status(200).json(results);
+  });
+});
+
+// 7. Récupérer les cours souscrits par un étudiant
+app.get('/api/student/:id/subscribed-courses', (req, res) => {
+  const studentId = req.params.id;
+
+  const query = `
+    SELECT courses.* 
+    FROM courses 
+    JOIN course_students ON courses.id = course_students.course_id 
+    WHERE course_students.student_id = ?
+  `;
+
+  db.query(query, [studentId], (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la récupération des cours souscrits :', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    res.status(200).json(results);
   });
 });
 

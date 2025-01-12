@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import './styles/styles.css';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Importation du hook useNavigate
+import { useNavigate } from 'react-router-dom';
 
 const App: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('Student');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Initialisation de useNavigate
+  const navigate = useNavigate();
 
   const validateForm = () => {
     if (!email || !password) {
@@ -27,15 +27,13 @@ const App: React.FC = () => {
     }
 
     try {
-      // Appel au backend pour s'inscrire
       const response = await axios.post('http://localhost:5000/api/signup', {
         email,
         password,
         role,
       });
 
-      // Afficher le message de succès
-      setMessage(response.data); // "Successful Subscription."
+      setMessage(response.data); // Message de succès
     } catch (error) {
       const typedError = error as any;
       setMessage(typedError.response?.data || 'An unexpected error occurred.');
@@ -50,26 +48,26 @@ const App: React.FC = () => {
     }
 
     try {
-      // Appel au backend pour se connecter
       const response = await axios.post('http://localhost:5000/api/login', {
         email,
         password,
         role,
       });
 
-      // Vérifier le rôle utilisateur
       const user = response.data.user;
+
       if (user.role !== role) {
         setMessage('Role does not match this email address.');
         return;
       }
 
-      // Stocker l'ID du professeur connecté dans localStorage
+      // Stocker l'ID de l'utilisateur connecté dans localStorage
       if (role === 'Professor') {
         localStorage.setItem('professorId', user.id.toString());
         navigate('/professor'); // Redirige vers la page Professor
-      } else {
-        navigate('/student'); // Redirige vers une page Student (si elle existe)
+      } else if (role === 'Student') {
+        localStorage.setItem('studentId', user.id.toString());
+        navigate('/student'); // Redirige vers la page Student
       }
     } catch (error) {
       const typedError = error as any;
@@ -168,7 +166,7 @@ const App: React.FC = () => {
       {/* Footer */}
       <footer className="footer bg-dark text-white py-3">
         <div className="container text-center">
-          <p>@Copyright: Zakaria ELORCHE & Badr Toumani - ALX Project</p>
+          <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
         </div>
       </footer>
     </div>
