@@ -1,0 +1,157 @@
+/* Réinitialisation */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Hauteur minimale pour s'adapter à la fenêtre */
+  }
+  
+  /* Navbar */
+  .navbar {
+    height: 50px; /* Hauteur réduite */
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    position: fixed; /* Fixée en haut */
+    top: 0;
+    left: 0;
+    width: 100%; /* Largeur complète */
+    z-index: 10;
+    background-color: #007bff;
+    color: white;
+  }
+  
+  /* Conteneur principal */
+  .home-form-container {
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center; /* Centre verticalement */
+    min-height: calc(100vh - 100px); /* Hauteur totale moins navbar et footer */
+    padding: 20px;
+  }
+
+  .home-page {
+    flex: 1; /* Prend tout l'espace restant */
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center; /* Centre verticalement */
+    padding-top: 50px; /* Ajoute un espace pour la navbar */
+    padding-bottom: 50px; /* Ajoute un espace pour le footer */
+  }
+  
+  /* Formulaire */
+ .card {
+  max-width: 400px; /* Largeur maximale pour le formulaire */
+  width: 100%;
+  border-radius: 10px; /* Coins arrondis */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre légère */
+}
+  
+  /* Footer */
+  .footer {
+    height: 40px; /* Hauteur réduite */
+    position: fixed; /* Fixé en bas */
+    bottom: 0;
+    left: 0;
+    width: 100%; /* Largeur complète */
+    background-color: #343a40; /* Couleur de fond sombre */
+    color: white; /* Texte blanc */
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center; /* Centre verticalement */
+    font-size: 12px; /* Texte légèrement plus petit */
+  }
+  
+  .card h1 {
+    font-size: 22px;
+    font-weight: bold;
+  }
+  
+  .form-group {
+    position: relative;
+  }
+  
+  .input-with-icon {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  .input-with-icon .input-icon {
+    position: absolute;
+    left: 10px;
+    font-size: 16px;
+    color: #007bff;
+  }
+  
+  .input-with-icon input {
+    padding-left: 40px; /* Laisser de l’espace pour l’icône */
+    height: 40px; /* Hauteur uniforme */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .select-group select {
+    height: 40px;
+    border-radius: 5px;
+  }
+  
+  .form-check {
+    margin-top: 10px;
+  }
+  
+  .form-check-label {
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .btn {
+    height: 40px; /* Hauteur uniforme des boutons */
+    border-radius: 5px;
+  }
+  
+  .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+  
+  .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+  
+  /* Espacement entre les boutons */
+  .d-flex.gap-2 {
+    display: flex;
+    gap: 10px;
+  }
+
+  .text-danger {
+    color: red;
+    font-weight: bold;
+  }
+  .container {
+    text-align: left;
+  }
+  
+  .category-button {
+    background-color: #28a745; /* Couleur verte */
+    color: white; /* Texte blanc */
+    padding: 1px 10px; /* Ajuste la hauteur et la largeur */
+    font-size: 0.875rem; /* Ajuste la taille du texte */
+    font-weight: bold; /* Texte en gras */
+    text-transform: uppercase; /* Convertit le texte en majuscules */
+    border: none; /* Retire la bordure */
+    border-radius: 15px; /* Arrondi du bouton */
+    width: auto; /* Ajuste automatiquement la largeur */
+    height: auto; /* Ajuste automatiquement la hauteur */
+    display: inline-block; /* Garde le bouton inline */
+    white-space: nowrap; /* Empêche le texte de se casser sur plusieurs lignes */
+  }
