@@ -37,7 +37,6 @@ const App: React.FC = () => {
       // Afficher le message de succès
       setMessage(response.data); // "Successful Subscription."
     } catch (error) {
-      // Utiliser une variable interne pour typer l'erreur
       const typedError = error as any;
       setMessage(typedError.response?.data || 'An unexpected error occurred.');
     }
@@ -65,14 +64,14 @@ const App: React.FC = () => {
         return;
       }
 
-      // Redirection en fonction du rôle
+      // Stocker l'ID du professeur connecté dans localStorage
       if (role === 'Professor') {
+        localStorage.setItem('professorId', user.id.toString());
         navigate('/professor'); // Redirige vers la page Professor
       } else {
         navigate('/student'); // Redirige vers une page Student (si elle existe)
       }
     } catch (error) {
-      // Utiliser une variable interne pour typer l'erreur
       const typedError = error as any;
       setMessage(typedError.response?.data || 'An unexpected error occurred.');
     }

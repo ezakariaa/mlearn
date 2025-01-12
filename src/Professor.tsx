@@ -17,19 +17,25 @@ const Professor: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [message, setMessage] = useState('');
 
-  // Dynamique : Simulation d'un professeur connecté (vous pouvez remplacer par un contexte ou localStorage)
-  const loggedInProfessorId = localStorage.getItem('professorId') || '4'; // Exemple de récupération
+  // Récupérer l'ID du professeur connecté depuis localStorage
+  const professorId = localStorage.getItem('professorId');
 
   useEffect(() => {
     const fetchCourses = async () => {
+      if (!professorId) {
+        setMessage('No professor ID found.');
+        return;
+      }
+
       try {
+        // Récupérer uniquement les cours créés par ce professeur
         const response = await axios.get<Course[]>(
-          `http://localhost:5000/api/professor/${loggedInProfessorId}/courses`
+          `http://localhost:5000/api/professor/${professorId}/courses`
         );
         setCourses(response.data);
         setFilteredCourses(response.data);
 
-        // Récupérer les catégories uniques
+        // Récupérer les catégories uniques des cours
         const uniqueCategories = Array.from(
           new Set(response.data.map((course) => course.category))
         );
@@ -40,12 +46,13 @@ const Professor: React.FC = () => {
     };
 
     fetchCourses();
-  }, [loggedInProfessorId]);
+  }, [professorId]);
 
   const handleDelete = async (courseId: number) => {
     try {
       await axios.delete(`http://localhost:5000/api/courses/${courseId}`);
-      setCourses(courses.filter((course) => course.id !== courseId));
+      const updatedCourses = courses.filter((course) => course.id !== courseId);
+      setCourses(updatedCourses);
       setFilteredCourses(
         filteredCourses.filter((course) => course.id !== courseId)
       );

@@ -88,9 +88,8 @@ app.post('/api/login', (req, res) => {
 
 // Route API pour récupérer les cours d'un professeur
 app.get('/api/professor/:id/courses', (req, res) => {
-  const professorId = req.params.id;
+  const professorId = parseInt(req.params.id);
 
-  // Valider si un ID est passé
   if (!professorId) {
     return res.status(400).send('Professor ID is required.');
   }
@@ -106,6 +105,7 @@ app.get('/api/professor/:id/courses', (req, res) => {
     res.status(200).json(results);
   });
 });
+
 
 
 // Route API pour supprimer un cours
