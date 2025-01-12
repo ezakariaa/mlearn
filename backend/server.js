@@ -88,24 +88,25 @@ app.post('/api/login', (req, res) => {
 
 // Route API pour récupérer les cours d'un professeur
 app.get('/api/professor/:id/courses', (req, res) => {
-  const professorId = parseInt(req.params.id, 10);
+  const professorId = req.params.id;
 
-  if (isNaN(professorId)) {
-    res.status(400).send('Invalid professor ID.');
-    return;
+  // Valider si un ID est passé
+  if (!professorId) {
+    return res.status(400).send('Professor ID is required.');
   }
 
   const query = 'SELECT * FROM courses WHERE professor_id = ?';
+
   db.query(query, [professorId], (err, results) => {
     if (err) {
       console.error('Erreur lors de la récupération des cours :', err);
-      res.status(500).send('Server error');
-      return;
+      return res.status(500).send('Server error');
     }
 
     res.status(200).json(results);
   });
 });
+
 
 // Route API pour supprimer un cours
 app.delete('/api/courses/:id', (req, res) => {

@@ -17,14 +17,14 @@ const Professor: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [message, setMessage] = useState('');
 
-  // Simuler la récupération du professeur connecté
-  const professorId = 4; // Vous pouvez remplacer par une logique dynamique pour récupérer le professeur connecté
+  // Dynamique : Simulation d'un professeur connecté (vous pouvez remplacer par un contexte ou localStorage)
+  const loggedInProfessorId = localStorage.getItem('professorId') || '4'; // Exemple de récupération
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const response = await axios.get<Course[]>(
-          `http://localhost:5000/api/professor/${professorId}/courses`
+          `http://localhost:5000/api/professor/${loggedInProfessorId}/courses`
         );
         setCourses(response.data);
         setFilteredCourses(response.data);
@@ -40,7 +40,7 @@ const Professor: React.FC = () => {
     };
 
     fetchCourses();
-  }, [professorId]);
+  }, [loggedInProfessorId]);
 
   const handleDelete = async (courseId: number) => {
     try {
