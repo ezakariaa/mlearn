@@ -1,157 +1,260 @@
 /* Réinitialisation */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Hauteur minimale pour s'adapter à la fenêtre */
-  }
-  
-  /* Navbar */
-  .navbar {
-    height: 50px; /* Hauteur réduite */
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-    position: fixed; /* Fixée en haut */
-    top: 0;
-    left: 0;
-    width: 100%; /* Largeur complète */
-    z-index: 10;
-    background-color: #007bff;
-    color: white;
-  }
-  
-  /* Conteneur principal */
-  .home-form-container {
-    display: flex;
-    justify-content: center; /* Centre horizontalement */
-    align-items: center; /* Centre verticalement */
-    min-height: calc(100vh - 100px); /* Hauteur totale moins navbar et footer */
-    padding: 20px;
-  }
-
-  .home-page {
-    flex: 1; /* Prend tout l'espace restant */
-    display: flex;
-    justify-content: center; /* Centre horizontalement */
-    align-items: center; /* Centre verticalement */
-    padding-top: 50px; /* Ajoute un espace pour la navbar */
-    padding-bottom: 50px; /* Ajoute un espace pour le footer */
-  }
-  
-  /* Formulaire */
- .card {
-  max-width: 400px; /* Largeur maximale pour le formulaire */
-  width: 100%;
-  border-radius: 10px; /* Coins arrondis */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre légère */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-  
-  /* Footer */
-  .footer {
-    height: 40px; /* Hauteur réduite */
-    position: fixed; /* Fixé en bas */
-    bottom: 0;
-    left: 0;
-    width: 100%; /* Largeur complète */
-    background-color: #343a40; /* Couleur de fond sombre */
-    color: white; /* Texte blanc */
-    display: flex;
-    justify-content: center; /* Centre horizontalement */
-    align-items: center; /* Centre verticalement */
-    font-size: 12px; /* Texte légèrement plus petit */
-  }
-  
-  .card h1 {
-    font-size: 22px;
-    font-weight: bold;
-  }
-  
-  .form-group {
-    position: relative;
-  }
-  
-  .input-with-icon {
-    display: flex;
-    align-items: center;
-    position: relative;
-  }
-  
-  .input-with-icon .input-icon {
-    position: absolute;
-    left: 10px;
-    font-size: 16px;
-    color: #007bff;
-  }
-  
-  .input-with-icon input {
-    padding-left: 40px; /* Laisser de l’espace pour l’icône */
-    height: 40px; /* Hauteur uniforme */
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  .select-group select {
-    height: 40px;
-    border-radius: 5px;
-  }
-  
-  .form-check {
-    margin-top: 10px;
-  }
-  
-  .form-check-label {
-    font-size: 14px;
-    font-weight: bold;
-  }
-  
-  .btn {
-    height: 40px; /* Hauteur uniforme des boutons */
-    border-radius: 5px;
-  }
-  
-  .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-  }
-  
-  .btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-  }
-  
-  /* Espacement entre les boutons */
-  .d-flex.gap-2 {
-    display: flex;
-    gap: 10px;
-  }
 
-  .text-danger {
-    color: red;
-    font-weight: bold;
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Navbar */
+.navbar {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  background-color: #007bff;
+  color: white;
+}
+
+/* Conteneur principal */
+.home-form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 100px);
+  padding: 20px;
+}
+
+.home-page {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+/* Formulaire */
+.card {
+  max-width: 400px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer */
+.footer {
+  height: 40px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #343a40;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+}
+
+.card h1 {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.form-group {
+  position: relative;
+}
+
+.input-with-icon {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 16px;
+  color: #007bff;
+}
+
+.input-with-icon input {
+  padding-left: 40px;
+  height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.select-group select {
+  height: 40px;
+  border-radius: 5px;
+}
+
+.form-check {
+  margin-top: 10px;
+}
+
+.form-check-label {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.btn {
+  height: 40px;
+  border-radius: 5px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.d-flex.gap-2 {
+  display: flex;
+  gap: 10px;
+}
+
+.text-danger {
+  color: red;
+  font-weight: bold;
+}
+
+.container {
+  text-align: left;
+}
+
+.category-button {
+  background-color: #28a745;
+  color: white;
+  padding: 1px 10px;
+  font-size: 0.875rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 15px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Conteneur des cartes */
+.courses-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.course-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+}
+
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.course-header h5 {
+  color: #007bff;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.category-badge {
+  background: #28a745;
+  color: white;
+  font-size: 0.75rem;
+  padding: 5px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.course-description {
+  margin: 10px 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.course-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #777;
+  margin: 10px 0;
+}
+
+/* Pagination */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.pagination-container button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 15px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pagination-container button:hover {
+  background-color: #0056b3;
+}
+
+.pagination-container button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-container span {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .courses-container {
+    grid-template-columns: repeat(2, 1fr);
   }
-  .container {
-    text-align: left;
+}
+
+@media (max-width: 576px) {
+  .courses-container {
+    grid-template-columns: 1fr;
   }
-  
-  .category-button {
-    background-color: #28a745; /* Couleur verte */
-    color: white; /* Texte blanc */
-    padding: 1px 10px; /* Ajuste la hauteur et la largeur */
-    font-size: 0.875rem; /* Ajuste la taille du texte */
-    font-weight: bold; /* Texte en gras */
-    text-transform: uppercase; /* Convertit le texte en majuscules */
-    border: none; /* Retire la bordure */
-    border-radius: 15px; /* Arrondi du bouton */
-    width: auto; /* Ajuste automatiquement la largeur */
-    height: auto; /* Ajuste automatiquement la hauteur */
-    display: inline-block; /* Garde le bouton inline */
-    white-space: nowrap; /* Empêche le texte de se casser sur plusieurs lignes */
-  }
+}

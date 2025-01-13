@@ -8,40 +8,67 @@ interface Course {
   description: string;
   category: string;
   professor_id: number;
+  location: string;
+  duration: string;
 }
 
 const Student: React.FC = () => {
   const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
-  const [subscribedCourses, setSubscribedCourses] = useState<Course[]>([]);
+  const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [message, setMessage] = useState('');
-
-  // Récupérer l'étudiant connecté
-  const studentId = localStorage.getItem('studentId'); // ID de l'étudiant connecté
+  const [currentPage, setCurrentPage] = useState(1);
+  const coursesPerPage = 9;
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        // Récupérer tous les cours disponibles
-        const availableResponse = await axios.get<Course[]>(
-          'http://localhost:5000/api/courses'
-        );
-        setAvailableCourses(availableResponse.data);
+        const response = await axios.get<Course[]>(`http://localhost:5000/api/courses`);
+        setAvailableCourses(response.data);
+        setFilteredCourses(response.data);
 
-        // Récupérer les cours auxquels l'étudiant a souscrit
-        if (studentId) {
-          const subscribedResponse = await axios.get<Course[]>(
-            `http://localhost:5000/api/student/${studentId}/subscribed-courses`
-          );
-          setSubscribedCourses(subscribedResponse.data);
-        }
+        // Extraire les catégories uniques
+        const uniqueCategories = Array.from(new Set(response.data.map((course) => course.category)));
+        setCategories(uniqueCategories);
       } catch (error) {
-        console.error('Erreur lors de la récupération des cours:', error);
         setMessage('Failed to fetch courses.');
       }
     };
 
     fetchCourses();
-  }, [studentId]);
+  }, []);
+
+  // Filtrer les cours par catégorie
+  const handleFilterChange = (category: string) => {
+    setSelectedCategory(category);
+    setCurrentPage(1); // Réinitialiser à la première page
+    if (category === '') {
+      setFilteredCourses(availableCourses);
+    } else {
+      setFilteredCourses(availableCourses.filter((course) => course.category === category));
+    }
+  };
+
+  // Calculer les cours affichés sur la page actuelle
+  const indexOfLastCourse = currentPage * coursesPerPage;
+  const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+  const currentCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
+
+  // Gestion de la pagination
+  const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
     <div className="student-page d-flex flex-column min-vh-100">
@@ -56,60 +83,71 @@ const Student: React.FC = () => {
 
       {/* Contenu de la page */}
       <div className="container mt-4">
-        {/* Bloc 1 */}
-        <div className="mb-5">
-          <h1 className="text-left">Bienvenue dans votre espace étudiant</h1>
-          <h2 className="text-left mb-3">Consultez nos cours</h2>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h1 className="text-left">Browse Available Courses</h1>
 
-          {message && <p className="text-danger text-left">{message}</p>}
-
-          {availableCourses.length === 0 ? (
-            <p className="text-left">Aucun cours disponible pour le moment.</p>
-          ) : (
-            <ul className="list-group">
-              {availableCourses.map((course) => (
-                <li key={course.id} className="list-group-item">
-                  <div>
-                    <h5 style={{ color: '#007bff' }} className="mb-1">
-                      {course.title}
-                    </h5>
-                    <button className="category-button mb-2">
-                      {course.category.toUpperCase()}
-                    </button>
-                    <p className="mb-2">{course.description}</p>
-                  </div>
-                </li>
+          {/* Filtre par catégorie */}
+          <div className="filter-container">
+            <label className="me-2">Filter by:</label>
+            <select
+              className="form-control w-auto"
+              value={selectedCategory}
+              onChange={(e) => handleFilterChange(e.target.value)}
+            >
+              <option value="">All</option>
+              {categories.map((category, index) => (
+                <option key={index} value={category}>
+                  {category}
+                </option>
               ))}
-            </ul>
+            </select>
+          </div>
+        </div>
+
+        {message && <p className="text-danger text-left">{message}</p>}
+
+        <div className="courses-container">
+          {currentCourses.length === 0 ? (
+            <p className="text-left">No courses available for the selected category.</p>
+          ) : (
+            currentCourses.map((course) => (
+              <div key={course.id} className="course-card">
+                <div className="course-header">
+                  <h5>{course.title}</h5>
+                  <span className="category-badge">{course.category.toUpperCase()}</span>
+                </div>
+                <p className="course-description">{course.description}</p>
+                <div className="course-info">
+                  <span>Duration: {course.duration}</span>
+                  <span>Location: {course.location}</span>
+                </div>
+              </div>
+            ))
           )}
         </div>
 
-        {/* Bloc 2 */}
-        <div>
-          <h2 className="text-left mb-3">Liste des cours auxquels vous avez souscrit</h2>
-
-          {subscribedCourses.length === 0 ? (
-            <p className="text-left">
-              Vous n'avez souscrit à aucun cours pour le moment.
-            </p>
-          ) : (
-            <ul className="list-group">
-              {subscribedCourses.map((course) => (
-                <li key={course.id} className="list-group-item">
-                  <div>
-                    <h5 style={{ color: '#007bff' }} className="mb-1">
-                      {course.title}
-                    </h5>
-                    <button className="category-button mb-2">
-                      {course.category.toUpperCase()}
-                    </button>
-                    <p className="mb-2">{course.description}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        {/* Pagination */}
+        {filteredCourses.length > coursesPerPage && (
+          <div className="pagination-container d-flex justify-content-between align-items-center mt-4">
+            <button
+              className="btn btn-outline-primary"
+              disabled={currentPage === 1}
+              onClick={handlePrevPage}
+            >
+              <i className="bi bi-chevron-left"></i> Previous
+            </button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              className="btn btn-outline-primary"
+              disabled={currentPage === totalPages}
+              onClick={handleNextPage}
+            >
+              Next <i className="bi bi-chevron-right"></i>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Footer */}
