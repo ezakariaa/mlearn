@@ -203,12 +203,17 @@ body {
   font-size: 0.9rem;
 }
 
+/* Mise à jour du style pour Duration et Location */
 .course-info {
-  display: flex;
-  justify-content: space-between;
+  display: block; /* S'assurer que les éléments sont empilés verticalement */
   font-size: 0.85rem;
   color: #777;
   margin: 10px 0;
+  line-height: 1.5; /* Espacement vertical entre les lignes */
+}
+
+.course-info span {
+  display: block; /* Chaque élément occupe une ligne */
 }
 
 /* Pagination */
@@ -257,4 +262,23 @@ body {
   .courses-container {
     grid-template-columns: 1fr;
   }
+}
+
+.course-card .btn-outline-primary {
+  border: 1px solid #007bff;
+  color: #007bff;
+  font-weight: bold;
+  font-size: small;
+  padding:  5px 10px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.course-card .btn-outline-primary:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.course-card .btn-outline-primary .me-2 {
+  font-size: 1.2rem;
 }

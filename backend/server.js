@@ -104,8 +104,8 @@ app.get('/api/courses', (req, res) => {
 app.get('/api/professor/:id/courses', (req, res) => {
   const professorId = parseInt(req.params.id);
 
-  if (!professorId) {
-    res.status(400).send('Professor ID is required.');
+  if (isNaN(professorId)) {
+    res.status(400).send('Invalid professor ID.');
     return;
   }
 
@@ -122,44 +122,29 @@ app.get('/api/professor/:id/courses', (req, res) => {
   });
 });
 
-// 5. Supprimer un cours
-app.delete('/api/courses/:id', (req, res) => {
-  const courseId = parseInt(req.params.id);
+// 5. Ajouter un étudiant à un cours (Souscription)
+app.post('/api/course_students', (req, res) => {
+  const { course_id, student_id } = req.body;
 
-  if (isNaN(courseId)) {
-    res.status(400).send('Invalid course ID.');
+  if (!course_id || !student_id) {
+    res.status(400).send('Course ID et Student ID sont requis.');
     return;
   }
 
-  const query = 'DELETE FROM courses WHERE id = ?';
+  const insertQuery = 'INSERT INTO course_students (course_id, student_id) VALUES (?, ?)';
 
-  db.query(query, [courseId], (err) => {
+  db.query(insertQuery, [course_id, student_id], (err) => {
     if (err) {
-      console.error('Erreur lors de la suppression du cours :', err);
-      res.status(500).send('Server error');
+      console.error('Erreur lors de l\'inscription au cours :', err);
+      res.status(500).send('Erreur serveur.');
       return;
     }
 
-    res.status(200).send('Course deleted successfully.');
+    res.status(200).send('Inscription réussie !');
   });
 });
 
-// 6. Récupérer les cours disponibles pour un étudiant
-app.get('/api/student/:id/available-courses', (req, res) => {
-  const query = 'SELECT * FROM courses';
-
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('Erreur lors de la récupération des cours disponibles :', err);
-      res.status(500).send('Server error');
-      return;
-    }
-
-    res.status(200).json(results);
-  });
-});
-
-// 7. Récupérer les cours souscrits par un étudiant
+// 6. Récupérer les cours souscrits par un étudiant
 app.get('/api/student/:id/subscribed-courses', (req, res) => {
   const studentId = req.params.id;
 
@@ -178,6 +163,28 @@ app.get('/api/student/:id/subscribed-courses', (req, res) => {
     }
 
     res.status(200).json(results);
+  });
+});
+
+// 7. Supprimer un cours
+app.delete('/api/courses/:id', (req, res) => {
+  const courseId = parseInt(req.params.id);
+
+  if (isNaN(courseId)) {
+    res.status(400).send('Invalid course ID.');
+    return;
+  }
+
+  const query = 'DELETE FROM courses WHERE id = ?';
+
+  db.query(query, [courseId], (err) => {
+    if (err) {
+      console.error('Erreur lors de la suppression du cours :', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    res.status(200).send('Course deleted successfully.');
   });
 });
 
