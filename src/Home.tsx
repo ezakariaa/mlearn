@@ -4,27 +4,27 @@ import { FaEnvelope, FaLock } from 'react-icons/fa';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const App: React.FC = () => {
+const Home: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('Student');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
+  // Form validation
   const validateForm = () => {
-    if (!email || !password) {
-      setMessage('Please enter your email address and password.');
+    if (!email || !password || !role) {
+      setMessage('Please fill in all fields.');
       return false;
     }
     return true;
   };
 
+  // Function to handle signup
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       const response = await axios.post('http://localhost:5000/api/signup', {
@@ -33,19 +33,23 @@ const App: React.FC = () => {
         role,
       });
 
-      setMessage(response.data); // Message de succès
+      setMessage(response.data.message || 'Signup successful!');
     } catch (error) {
-      const typedError = error as any;
-      setMessage(typedError.response?.data || 'An unexpected error occurred.');
+      if (axios.isAxiosError(error)) {
+        console.error('Signup error:', error.response?.data || error.message);
+        setMessage(error.response?.data?.message || 'An unexpected error occurred during signup.');
+      } else {
+        console.error('Unexpected error:', error);
+        setMessage('An unexpected error occurred during signup.');
+      }
     }
   };
 
+  // Function to handle login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       const response = await axios.post('http://localhost:5000/api/login', {
@@ -54,24 +58,34 @@ const App: React.FC = () => {
         role,
       });
 
+      const token = response.data.token;
       const user = response.data.user;
 
+      // Verify if the selected role matches the user's role
       if (user.role !== role) {
-        setMessage('Role does not match this email address.');
+        setMessage('The selected role does not match the user.');
         return;
       }
 
-      // Stocker l'ID de l'utilisateur connecté dans localStorage
+      // Store token and email in localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('userId', user.id.toString());
+      localStorage.setItem('email', user.email);
+
+      // Navigate to the appropriate page based on the role
       if (role === 'Professor') {
-        localStorage.setItem('professorId', user.id.toString());
-        navigate('/professor'); // Redirige vers la page Professor
+        navigate('/professor');
       } else if (role === 'Student') {
-        localStorage.setItem('studentId', user.id.toString());
-        navigate('/student'); // Redirige vers la page Student
+        navigate('/student');
       }
     } catch (error) {
-      const typedError = error as any;
-      setMessage(typedError.response?.data || 'An unexpected error occurred.');
+      if (axios.isAxiosError(error)) {
+        console.error('Login error:', error.response?.data || error.message);
+        setMessage(error.response?.data?.message || 'An unexpected error occurred during login.');
+      } else {
+        console.error('Unexpected error:', error);
+        setMessage('No response from server. Please try again later.');
+      }
     }
   };
 
@@ -86,7 +100,7 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      {/* Formulaire centré */}
+      {/* Centered form */}
       <div className="home-form-container">
         <div className="card shadow p-4">
           <h1 className="text-center mb-4">Welcome to MLEARN</h1>
@@ -157,8 +171,8 @@ const App: React.FC = () => {
                 Sign up
               </button>
             </div>
-            {/* Message d'erreur ou de succès affiché ici */}
-            {message && <p className="text-danger text-center mt-3">{message}</p>}
+            {/* Error or success message displayed here */}
+            {message && <p className={`text-center mt-3 ${message.includes('error') ? 'text-danger' : 'text-success'}`}>{message}</p>}
           </form>
         </div>
       </div>
@@ -173,4 +187,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default Home;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './styles/styles.css';
 import axios from 'axios';
-import { FaBook } from 'react-icons/fa';
+import { FaBook, FaTrash } from 'react-icons/fa';
 
 interface Course {
   id: number;
@@ -18,76 +18,80 @@ const Student: React.FC = () => {
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [subscribedCourseDetails, setSubscribedCourseDetails] = useState<Course[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [subscribedCourses, setSubscribedCourses] = useState<number[]>([]); // État pour stocker les cours souscrits
-  const coursesPerPage = 9;
+  const [subscribedPage, setSubscribedPage] = useState(1);
+  const [subscribedCourses, setSubscribedCourses] = useState<number[]>([]);
+  const coursesPerPage = 6;
+  const subscribedPerPage = 6;
 
-  // Simulez l'ID de l'étudiant connecté (à remplacer par une vraie logique d'authentification)
-  const studentId = 1;
+  const userEmail = localStorage.getItem('email') || 'Non identifié';
+  const studentId = localStorage.getItem('userId');
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get<Course[]>(`http://localhost:5000/api/courses`);
-        setAvailableCourses(response.data);
-        setFilteredCourses(response.data);
-
-        const uniqueCategories = Array.from(new Set(response.data.map((course) => course.category)));
+        const response = await axios.get<Course[]>('http://localhost:5000/api/courses');
+        setAvailableCourses(response.data || []);
+        setFilteredCourses(response.data || []);
+        const uniqueCategories = Array.from(new Set(response.data.map(course => course.category)));
         setCategories(uniqueCategories);
-
-        // Récupérer les cours souscrits par l'étudiant
-        const subscribedResponse = await axios.get<{ id: number }[]>(
-          `http://localhost:5000/api/student/${studentId}/subscribed-courses`
-        );
-        const subscribedCourseIds = subscribedResponse.data.map((course) => course.id);
-        setSubscribedCourses(subscribedCourseIds);
-
-        // Récupérer les détails des cours souscrits
-        const subscribedDetails = response.data.filter((course) =>
-          subscribedCourseIds.includes(course.id)
-        );
-        setSubscribedCourseDetails(subscribedDetails);
       } catch (error) {
+        console.error('Error fetching courses:', error);
         setMessage('Failed to fetch courses.');
       }
     };
 
+    const fetchSubscribedCourses = async () => {
+      try {
+        const response = await axios.get<Course[]>(`http://localhost:5000/api/student/${studentId}/subscribed-courses`);
+        setSubscribedCourseDetails(response.data || []);
+        setSubscribedCourses(response.data.map(course => course.id));
+      } catch (error) {
+        console.error('Error fetching subscribed courses:', error);
+      }
+    };
+
     fetchCourses();
+    if (studentId) {
+      fetchSubscribedCourses();
+    }
   }, [studentId]);
 
   const handleSubscribe = async (courseId: number) => {
     try {
-      // Appel à l'API pour inscrire un étudiant au cours
-      const response = await axios.post('http://localhost:5000/api/course_students', {
+      await axios.post('http://localhost:5000/api/course_students', {
         course_id: courseId,
-        student_id: studentId,
+        email: userEmail,
       });
-
-      if (response.status === 200) {
-        alert('Inscription réussie !');
-        setSubscribedCourses((prev) => [...prev, courseId]); // Ajouter le cours souscrit à la liste
-
-        // Ajouter les détails du cours souscrit
-        const courseDetails = availableCourses.find((course) => course.id === courseId);
-        if (courseDetails) {
-          setSubscribedCourseDetails((prev) => [...prev, courseDetails]);
-        }
+      setSubscribedCourses(prev => [...prev, courseId]);
+      const courseDetails = availableCourses.find(course => course.id === courseId);
+      if (courseDetails) {
+        setSubscribedCourseDetails(prev => [...prev, courseDetails]);
       }
     } catch (error) {
-      console.error('Erreur lors de l\'inscription au cours :', error);
+      console.error('Error subscribing to course:', error);
       alert('Erreur lors de l\'inscription. Veuillez réessayer.');
     }
   };
 
+  const handleDeleteSubscription = async (courseId: number) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/course_students/${studentId}/${courseId}`);
+      setSubscribedCourses(prev => prev.filter(id => id !== courseId));
+      setSubscribedCourseDetails(prev => prev.filter(course => course.id !== courseId));
+    } catch (error) {
+      console.error('Error deleting subscription:', error);
+      alert('Erreur lors de la suppression. Veuillez réessayer.');
+    }
+  };
+
   const handleFilterChange = (category: string) => {
-    setSelectedCategory(category);
     setCurrentPage(1);
     if (category === '') {
       setFilteredCourses(availableCourses);
     } else {
-      setFilteredCourses(availableCourses.filter((course) => course.category === category));
+      setFilteredCourses(availableCourses.filter(course => course.category === category));
     }
   };
 
@@ -109,9 +113,27 @@ const Student: React.FC = () => {
     }
   };
 
+  const indexOfLastSubscribed = subscribedPage * subscribedPerPage;
+  const indexOfFirstSubscribed = indexOfLastSubscribed - subscribedPerPage;
+  const currentSubscribedCourses = subscribedCourseDetails.slice(indexOfFirstSubscribed, indexOfLastSubscribed);
+
+  const subscribedTotalPages = Math.ceil(subscribedCourseDetails.length / subscribedPerPage);
+
+  const handleSubscribedNextPage = () => {
+    if (subscribedPage < subscribedTotalPages) {
+      setSubscribedPage(subscribedPage + 1);
+    }
+  };
+
+  const handleSubscribedPrevPage = () => {
+    if (subscribedPage > 1) {
+      setSubscribedPage(subscribedPage - 1);
+    }
+  };
+
   return (
     <div className="student-page d-flex flex-column min-vh-100">
-      <nav className="navbar navbar-expand-lg navbar-light bg-primary">
+      <nav className="navbar navbar-expand-lg navbar-light bg-primary fixed-top">
         <div className="container">
           <a className="navbar-brand text-white" href="/">
             MLEARN
@@ -119,15 +141,20 @@ const Student: React.FC = () => {
         </div>
       </nav>
 
-      <div className="container mt-4">
+      <div className="container mt-5 pt-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h1 className="text-left">Browse Available Courses</h1>
+          <h2 className="custom-title">Browse Available Courses</h2>
+        </div>
 
-          <div className="filter-container">
-            <label className="me-2">Filter by:</label>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <strong>Connecté :</strong> {userEmail}
+          </div>
+
+          <div className="filter-container d-flex align-items-center">
+            <label className="me-2" style={{ whiteSpace: 'nowrap' }}>Sort by:</label>
             <select
-              className="form-control w-auto"
-              value={selectedCategory}
+              className="form-select"
               onChange={(e) => handleFilterChange(e.target.value)}
             >
               <option value="">All</option>
@@ -146,7 +173,7 @@ const Student: React.FC = () => {
           {currentCourses.length === 0 ? (
             <p className="text-left">No courses available for the selected category.</p>
           ) : (
-            currentCourses.map((course) => (
+            currentCourses.map(course => (
               <div key={course.id} className="course-card">
                 <div className="course-header">
                   <h5>{course.title}</h5>
@@ -172,14 +199,35 @@ const Student: React.FC = () => {
           )}
         </div>
 
-        {/* Section des cours souscrits */}
+        {filteredCourses.length > coursesPerPage && (
+          <div className="pagination-container d-flex justify-content-between align-items-center mt-4">
+            <button
+              className="btn btn-outline-primary"
+              disabled={currentPage === 1}
+              onClick={handlePrevPage}
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              className="btn btn-outline-primary"
+              disabled={currentPage === totalPages}
+              onClick={handleNextPage}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
         <div className="mt-5">
-          <h2>Courses you have subscribed to:</h2>
-          {subscribedCourseDetails.length === 0 ? (
+          <h2 className="custom-title">Courses you have subscribed to:</h2>
+          {currentSubscribedCourses.length === 0 ? (
             <p>You have not subscribed to any courses yet.</p>
           ) : (
             <div className="courses-container">
-              {subscribedCourseDetails.map((course) => (
+              {currentSubscribedCourses.map(course => (
                 <div key={course.id} className="course-card">
                   <div className="course-header">
                     <h5>{course.title}</h5>
@@ -190,8 +238,39 @@ const Student: React.FC = () => {
                     <span>Duration: {course.duration}</span>
                     <span>Location: {course.location}</span>
                   </div>
+                  <div className="d-flex justify-content-end mt-2">
+                    <button
+                      className="btn btn-outline-danger d-flex align-items-center"
+                      onClick={() => handleDeleteSubscription(course.id)}
+                    >
+                      <FaTrash className="me-2" />
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {subscribedCourseDetails.length > subscribedPerPage && (
+            <div className="pagination-container d-flex justify-content-between align-items-center mt-4">
+              <button
+                className="btn btn-outline-primary"
+                disabled={subscribedPage === 1}
+                onClick={handleSubscribedPrevPage}
+              >
+                Previous
+              </button>
+              <span>
+                Page {subscribedPage} of {subscribedTotalPages}
+              </span>
+              <button
+                className="btn btn-outline-primary"
+                disabled={subscribedPage === subscribedTotalPages}
+                onClick={handleSubscribedNextPage}
+              >
+                Next
+              </button>
             </div>
           )}
         </div>
