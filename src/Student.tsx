@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './styles/styles.css';
 import axios from 'axios';
-import { FaBook, FaTrash } from 'react-icons/fa';
+import { FaBook, FaTrash, FaUser, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
 
 interface Course {
   id: number;
@@ -11,6 +11,7 @@ interface Course {
   professor_id: number;
   location: string;
   duration: string;
+  professor: string; // Propriété pour le nom du professeur
 }
 
 const Student: React.FC = () => {
@@ -181,8 +182,9 @@ const Student: React.FC = () => {
                 </div>
                 <p className="course-description">{course.description}</p>
                 <div className="course-info">
-                  <span>Duration: {course.duration}</span>
-                  <span>Location: {course.location}</span>
+                  <span><FaUser className="me-1 text-primary" /><strong>Professor: {course.professor}</strong></span>
+                  <span><FaClock className="me-1 text-success" />Duration: {course.duration}</span>
+                  <span><FaMapMarkerAlt className="me-1 text-danger" />Location: {course.location}</span>
                 </div>
                 <div className="d-flex justify-content-end mt-2">
                   <button
@@ -235,8 +237,9 @@ const Student: React.FC = () => {
                   </div>
                   <p className="course-description">{course.description}</p>
                   <div className="course-info">
-                    <span>Duration: {course.duration}</span>
-                    <span>Location: {course.location}</span>
+                    <span><FaUser className="me-1 text-primary" /><strong>Professor: {course.professor}</strong></span>
+                    <span><FaClock className="me-1 text-success" />Duration: {course.duration}</span>
+                    <span><FaMapMarkerAlt className="me-1 text-danger" />Location: {course.location}</span>
                   </div>
                   <div className="d-flex justify-content-end mt-2">
                     <button
