@@ -11,41 +11,16 @@ const Home: React.FC = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  // Form validation
+  // Fonction de validation du formulaire
   const validateForm = () => {
     if (!email || !password || !role) {
-      setMessage('Please fill in all fields.');
+      setMessage('Veuillez remplir tous les champs.');
       return false;
     }
     return true;
   };
 
-  // Function to handle signup
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
-    try {
-      const response = await axios.post('http://localhost:5000/api/signup', {
-        email,
-        password,
-        role,
-      });
-
-      setMessage(response.data.message || 'Signup successful!');
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Signup error:', error.response?.data || error.message);
-        setMessage(error.response?.data?.message || 'An unexpected error occurred during signup.');
-      } else {
-        console.error('Unexpected error:', error);
-        setMessage('An unexpected error occurred during signup.');
-      }
-    }
-  };
-
-  // Function to handle login
+  // Fonction pour gérer la connexion
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -58,34 +33,27 @@ const Home: React.FC = () => {
         role,
       });
 
-      const token = response.data.token;
       const user = response.data.user;
 
-      // Verify if the selected role matches the user's role
+      // Vérifie si le rôle sélectionné correspond au rôle de l'utilisateur
       if (user.role !== role) {
-        setMessage('The selected role does not match the user.');
+        setMessage('Le rôle sélectionné ne correspond pas à l\'utilisateur.');
         return;
       }
 
-      // Store token and email in localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', user.id.toString());
+      // Stocke le rôle et l'email dans le localStorage
+      localStorage.setItem('role', user.role);
       localStorage.setItem('email', user.email);
 
-      // Navigate to the appropriate page based on the role
-      if (role === 'Professor') {
-        navigate('/professor');
-      } else if (role === 'Student') {
-        navigate('/student');
+      // Redirige vers la page appropriée selon le rôle
+      if (role === 'Student') {
+        navigate('/student-profile');
+      } else if (role === 'Professor') {
+        navigate('/professor-profile');
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Login error:', error.response?.data || error.message);
-        setMessage(error.response?.data?.message || 'An unexpected error occurred during login.');
-      } else {
-        console.error('Unexpected error:', error);
-        setMessage('No response from server. Please try again later.');
-      }
+      console.error('Erreur lors de la connexion :', error);
+      setMessage('Une erreur est survenue lors de la connexion. Veuillez réessayer.');
     }
   };
 
@@ -100,41 +68,41 @@ const Home: React.FC = () => {
         </div>
       </nav>
 
-      {/* Centered form */}
+      {/* Formulaire centré */}
       <div className="home-form-container">
         <div className="card shadow p-4">
-          <h1 className="text-center mb-4">Welcome to MLEARN</h1>
+          <h1 className="text-center mb-4">Bienvenue sur MLEARN</h1>
           <form>
             <div className="form-group mb-3">
-              <label htmlFor="email">Email Address:</label>
+              <label htmlFor="email">Adresse email :</label>
               <div className="input-with-icon">
                 <FaEnvelope className="input-icon" />
                 <input
                   type="email"
                   className="form-control"
                   id="email"
-                  placeholder="Enter your email address"
+                  placeholder="Entrez votre adresse email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
             <div className="form-group mb-3">
-              <label htmlFor="password">Password:</label>
+              <label htmlFor="password">Mot de passe :</label>
               <div className="input-with-icon">
                 <FaLock className="input-icon" />
                 <input
                   type="password"
                   className="form-control"
                   id="password"
-                  placeholder="Enter your password"
+                  placeholder="Entrez votre mot de passe"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>
             <div className="form-group select-group mb-3">
-              <label htmlFor="profile">Profile:</label>
+              <label htmlFor="profile">Profil :</label>
               <select
                 className="form-control"
                 id="role"
@@ -152,7 +120,7 @@ const Home: React.FC = () => {
                 id="remember"
               />
               <label className="form-check-label" htmlFor="remember">
-                Remember the password
+                Se souvenir du mot de passe
               </label>
             </div>
             <div className="d-flex gap-2">
@@ -161,18 +129,11 @@ const Home: React.FC = () => {
                 className="btn btn-primary w-100"
                 onClick={handleLogin}
               >
-                Login
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary w-100"
-                onClick={handleSignUp}
-              >
-                Sign up
+                Connexion
               </button>
             </div>
-            {/* Error or success message displayed here */}
-            {message && <p className={`text-center mt-3 ${message.includes('error') ? 'text-danger' : 'text-success'}`}>{message}</p>}
+            {/* Message d'erreur ou de succès */}
+            {message && <p className={`text-center mt-3 ${message.includes('erreur') ? 'text-danger' : 'text-success'}`}>{message}</p>}
           </form>
         </div>
       </div>

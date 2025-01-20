@@ -3,9 +3,8 @@ const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
-
-const SECRET_KEY = process.env.JWT_SECRET || 'votre_clé_secrète';
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
 
@@ -13,12 +12,29 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// Configuration pour servir les fichiers statiques
+app.use('/avatars', express.static(path.join(__dirname, 'avatars')));
+
+// Vérification du chemin d'accès
+console.log('Serving avatars from:', path.join(__dirname, 'avatars'));
+
+// Configuration pour le stockage des fichiers
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, 'avatars'));
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
+
 // Connexion à la base de données
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'mlearn',
 });
 
 db.connect((err) => {
@@ -42,8 +58,8 @@ app.post('/api/signup', (req, res) => {
 
   db.query(checkQuery, [email], (err, results) => {
     if (err) {
-      console.error('Erreur lors de la vérification de l\'email :', err);
-      return res.status(500).json({ message: 'Erreur lors de la vérification de l\'email.' });
+      console.error("Erreur lors de la vérification de l'email :", err);
+      return res.status(500).json({ message: 'Erreur serveur.' });
     }
 
     if (results.length > 0) {
@@ -52,8 +68,8 @@ app.post('/api/signup', (req, res) => {
 
     db.query(insertQuery, [email, password, role], (err) => {
       if (err) {
-        console.error('Erreur lors de l\'inscription de l\'utilisateur :', err);
-        return res.status(500).json({ message: 'Erreur lors de l\'inscription.' });
+        console.error("Erreur lors de l'inscription de l'utilisateur :", err);
+        return res.status(500).json({ message: 'Erreur serveur.' });
       }
 
       return res.status(201).json({ message: 'Inscription réussie.' });
@@ -90,6 +106,83 @@ app.post('/api/login', (req, res) => {
   });
 });
 
+// Route pour récupérer le rôle utilisateur par email
+app.get('/api/users/role', (req, res) => {
+  const email = req.query.email;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email requis.' });
+  }
+
+  const query = 'SELECT role FROM users WHERE email = ?';
+
+  db.query(query, [email], (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la récupération du rôle :', err);
+      return res.status(500).json({ message: 'Erreur serveur.' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+    }
+
+    return res.status(200).json({ role: results[0].role });
+  });
+});
+
+// Route pour récupérer le profil utilisateur par email
+app.get('/api/users/profile', (req, res) => {
+  const email = req.query.email;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email requis.' });
+  }
+
+  const query = 'SELECT * FROM users WHERE email = ?';
+
+  db.query(query, [email], (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la récupération du profil utilisateur :', err);
+      return res.status(500).json({ message: 'Erreur serveur.' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+    }
+
+    return res.status(200).json(results[0]);
+  });
+});
+
+// Route pour mettre à jour le profil utilisateur
+app.put('/api/users/update', upload.single('profile_picture'), (req, res) => {
+  const { name, email, phone, city, country, presentation, interests, date_of_birth } = req.body;
+  const profile_picture = req.file ? `/avatars/${req.file.filename}` : null;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email est requis.' });
+  }
+
+  const updateQuery = `
+    UPDATE users
+    SET name = ?, phone = ?, city = ?, country = ?, profile_picture = ?, presentation = ?, interests = ?, date_of_birth = ?
+    WHERE email = ?
+  `;
+
+  db.query(
+    updateQuery,
+    [name, phone, city, country, profile_picture, presentation, interests, date_of_birth, email],
+    (err) => {
+      if (err) {
+        console.error('Erreur lors de la mise à jour du profil utilisateur :', err);
+        return res.status(500).json({ message: 'Erreur serveur.' });
+      }
+
+      return res.status(200).json({ message: 'Profil mis à jour avec succès.' });
+    }
+  );
+});
+
 // Route pour récupérer tous les cours
 app.get('/api/courses', (req, res) => {
   const query = 'SELECT * FROM courses';
@@ -104,92 +197,13 @@ app.get('/api/courses', (req, res) => {
   });
 });
 
-// Route pour souscrire à un cours
-app.post('/api/course_students', (req, res) => {
-  const { course_id, email } = req.body;
-
-  if (!course_id || !email) {
-    return res.status(400).json({ message: 'Course ID et email sont requis.' });
-  }
-
-  const findStudentQuery = 'SELECT id FROM users WHERE email = ? AND role = "Student"';
-  const insertQuery = 'INSERT INTO course_students (course_id, student_id) VALUES (?, ?)';
-
-  db.query(findStudentQuery, [email], (err, results) => {
-    if (err) {
-      console.error('Erreur lors de la recherche de l\'étudiant :', err);
-      return res.status(500).json({ message: 'Erreur serveur lors de la recherche de l\'étudiant.' });
-    }
-
-    if (results.length === 0) {
-      return res.status(404).json({ message: 'Étudiant non trouvé.' });
-    }
-
-    const studentId = results[0].id;
-
-    db.query(insertQuery, [course_id, studentId], (err) => {
-      if (err) {
-        console.error('Erreur lors de l\'inscription au cours :', err);
-        return res.status(500).json({ message: 'Erreur serveur lors de l\'inscription au cours.' });
-      }
-
-      return res.status(200).json({ message: 'Inscription réussie.' });
-    });
-  });
-});
-
-// Route pour récupérer les cours souscrits par un étudiant
-app.get('/api/student/:id/subscribed-courses', (req, res) => {
-  const studentId = req.params.id;
-
-  const query = `
-    SELECT courses.* 
-    FROM courses 
-    JOIN course_students ON courses.id = course_students.course_id 
-    WHERE course_students.student_id = ?
-  `;
-
-  db.query(query, [studentId], (err, results) => {
-    if (err) {
-      console.error('Erreur lors de la récupération des cours souscrits :', err);
-      return res.status(500).json({ message: 'Erreur lors de la récupération des cours souscrits.' });
-    }
-
-    return res.status(200).json(results);
-  });
-});
-
-// Route pour supprimer un cours souscrit par un étudiant
-app.delete('/api/course_students/:student_id/:course_id', (req, res) => {
-  const { student_id, course_id } = req.params;
-
-  if (!student_id || !course_id) {
-    return res.status(400).json({ message: 'Student ID et Course ID sont requis.' });
-  }
-
-  const deleteQuery = 'DELETE FROM course_students WHERE student_id = ? AND course_id = ?';
-
-  db.query(deleteQuery, [student_id, course_id], (err, result) => {
-    if (err) {
-      console.error('Erreur lors de la suppression du cours souscrit :', err);
-      return res.status(500).json({ message: 'Erreur serveur lors de la suppression.' });
-    }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Cours ou étudiant non trouvé.' });
-    }
-
-    return res.status(200).json({ message: 'Cours souscrit supprimé avec succès.' });
-  });
-});
-
 // Gestion des routes non trouvées
 app.use((req, res) => {
   res.status(404).json({ message: 'Route introuvable.' });
 });
 
 // Lancement du serveur
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
 });
