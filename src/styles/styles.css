@@ -11,12 +11,12 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-bottom: 80px;
+  
 }
 
 /* Navbar */
 .navbar {
-  height: 45px;
+  height: 40px;
   display: flex;
   align-items: center;
   font-weight: bold;
@@ -35,7 +35,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(90vh - 100px);
+  min-height: calc(100vh - 100px);
   padding: 20px;
 }
 
@@ -67,7 +67,6 @@ body {
   color: white;
   display: flex;
   justify-content: center;
-  align-items: center;
   font-size: 13px;
 }
 

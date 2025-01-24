@@ -156,7 +156,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="footer bg-dark text-white py-3">
+      <footer className="footer bg-dark text-white">
         <div className="container text-center">
           <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
         </div>

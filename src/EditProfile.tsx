@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/styles.css';
 import Navbar from './components/Navbar';
 import axios from 'axios';
@@ -59,7 +60,7 @@ const EditProfile: React.FC = () => {
           profile_picture: response.data.profile_picture || '',
           presentation: response.data.presentation || '',
           interests: response.data.interests ? response.data.interests.split(',') : [],
-          date_of_birth: response.data.date_of_birth || '',
+          date_of_birth: response.data.date_of_birth ? new Date(response.data.date_of_birth).toISOString().slice(0, 10) : '',
           role: response.data.role || '',
         });
         setLoading(false);
@@ -129,6 +130,10 @@ const EditProfile: React.FC = () => {
     }
   };
 
+  const handleCancel = () => {
+    navigate('/student-profile');
+  };
+
   if (loading) {
     return <p className="text-center mt-5">Loading profile...</p>;
   }
@@ -136,20 +141,20 @@ const EditProfile: React.FC = () => {
   return (
     <>
       <div className="container mt-5">
-        <h1 className="text-center text-primary mb-4">Edit Profile</h1>
-        <form className="shadow-lg p-4 bg-white rounded" onSubmit={handleSubmit}>
+        <h1 className="text-center text-primary mb-4" style={{ fontSize: '2rem' }}>Edit Profile</h1>
+        <form className="shadow-lg p-4 bg-white rounded" onSubmit={handleSubmit} style={{ fontSize: '0.9rem' }}>
           <div className="row align-items-start">
-            <div className="col-md-3 text-center">
-              <h5 className="text-primary text-start">Profile Picture</h5>
+            <div className="col-md-3 d-flex flex-column">
+              <h5 className="text-primary" style={{ fontSize: '1rem' }}>Profile Picture</h5>
               {typeof formData.profile_picture === 'string' && formData.profile_picture && (
                 <img
                   src={`http://localhost:5000${formData.profile_picture}`}
                   alt="Profile"
-                  className="rounded-circle mb-2 border border-primary"
-                  style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                  className="border border-primary mb-3"
+                  style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '15px' }}
                 />
               )}
-              <label className="btn btn-primary btn-sm mt-2" style={{ fontSize: '14px' }}>
+              <label className="btn btn-success text-white text-center" style={{ fontSize: '0.8rem', borderRadius: '15px', padding: '5px 15px', width: '100px', height: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 Choose File
                 <input
                   type="file"
@@ -161,10 +166,10 @@ const EditProfile: React.FC = () => {
               </label>
             </div>
             <div className="col-md-9">
-              <h5 className="text-primary">Personal Information</h5>
+              <h5 className="text-primary" style={{ fontSize: '1rem' }}>Personal Information</h5>
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="name" className="form-label">
+                  <label htmlFor="name" className="form-label" style={{ fontSize: '0.75rem' }}>
                     Full Name
                   </label>
                   <input
@@ -175,10 +180,11 @@ const EditProfile: React.FC = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
+                    style={{ fontSize: '0.8rem' }}
                   />
                 </div>
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="email" className="form-label">
+                  <label htmlFor="email" className="form-label" style={{ fontSize: '0.75rem' }}>
                     Email
                   </label>
                   <input
@@ -188,12 +194,13 @@ const EditProfile: React.FC = () => {
                     name="email"
                     value={formData.email}
                     disabled
+                    style={{ fontSize: '0.8rem' }}
                   />
                 </div>
               </div>
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="date_of_birth" className="form-label">
+                  <label htmlFor="date_of_birth" className="form-label" style={{ fontSize: '0.75rem' }}>
                     Date of Birth
                   </label>
                   <input
@@ -203,10 +210,11 @@ const EditProfile: React.FC = () => {
                     name="date_of_birth"
                     value={formData.date_of_birth}
                     onChange={handleInputChange}
+                    style={{ fontSize: '0.8rem' }}
                   />
                 </div>
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="role" className="form-label">
+                  <label htmlFor="role" className="form-label" style={{ fontSize: '0.75rem' }}>
                     Role
                   </label>
                   <input
@@ -216,6 +224,7 @@ const EditProfile: React.FC = () => {
                     name="role"
                     value={formData.role}
                     disabled
+                    style={{ fontSize: '0.8rem' }}
                   />
                 </div>
               </div>
@@ -223,7 +232,7 @@ const EditProfile: React.FC = () => {
           </div>
           <hr />
           <div className="mb-3">
-            <label htmlFor="presentation" className="form-label text-primary">
+            <label htmlFor="presentation" className="form-label text-primary" style={{ fontSize: '1rem' }}>
               Presentation
             </label>
             <textarea
@@ -233,10 +242,11 @@ const EditProfile: React.FC = () => {
               rows={4}
               value={formData.presentation}
               onChange={handleInputChange}
+              style={{ fontSize: '0.8rem' }}
             ></textarea>
           </div>
           <div className="mb-3">
-            <label htmlFor="interests" className="form-label text-primary">
+            <label htmlFor="interests" className="form-label text-primary" style={{ fontSize: '1rem' }}>
               Interests
             </label>
             <select
@@ -246,6 +256,7 @@ const EditProfile: React.FC = () => {
               name="interests"
               value={formData.interests}
               onChange={handleInterestChange}
+              style={{ fontSize: '0.8rem' }}
             >
               {interestOptions.map((interest) => (
                 <option key={interest} value={interest}>
@@ -256,7 +267,7 @@ const EditProfile: React.FC = () => {
           </div>
           <div className="row mb-3">
             <div className="col-md-6">
-              <label htmlFor="city" className="form-label text-primary">
+              <label htmlFor="city" className="form-label text-primary" style={{ fontSize: '1rem' }}>
                 City
               </label>
               <input
@@ -266,10 +277,11 @@ const EditProfile: React.FC = () => {
                 name="city"
                 value={formData.city}
                 onChange={handleInputChange}
+                style={{ fontSize: '0.8rem' }}
               />
             </div>
             <div className="col-md-6">
-              <label htmlFor="country" className="form-label text-primary">
+              <label htmlFor="country" className="form-label text-primary" style={{ fontSize: '1rem' }}>
                 Country
               </label>
               <input
@@ -279,14 +291,20 @@ const EditProfile: React.FC = () => {
                 name="country"
                 value={formData.country}
                 onChange={handleInputChange}
+                style={{ fontSize: '0.8rem' }}
               />
             </div>
           </div>
-          <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : 'Save Changes'}
-          </button>
+          <div className="d-flex justify-content-center gap-3">
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting} style={{ fontSize: '0.9rem' }}>
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
+            </button>
+            <button type="button" className="btn btn-secondary" onClick={handleCancel} style={{ fontSize: '0.9rem' }}>
+              Annuler
+            </button>
+          </div>
         </form>
-        <footer className="footer bg-dark text-white py-2 mt-3 text-center rounded" style={{ fontSize: '12px' }}>
+        <footer className="footer bg-dark text-white py-2 mt-3 text-center rounded" style={{ fontSize: '0.8rem' }}>
           <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
         </footer>
       </div>

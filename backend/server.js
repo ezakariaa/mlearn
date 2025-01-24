@@ -111,6 +111,11 @@ app.put('/api/users/update', upload.single('profile_picture'), (req, res) => {
     return res.status(400).json({ message: 'Email est requis.' });
   }
 
+  // Assurez-vous que les intérêts sont une chaîne séparée par des virgules
+  const formattedInterests = Array.isArray(interests)
+    ? interests.join(',')
+    : interests;
+
   const updateQuery = `
     UPDATE users
     SET 
@@ -126,8 +131,8 @@ app.put('/api/users/update', upload.single('profile_picture'), (req, res) => {
   `;
 
   const values = profile_picture
-    ? [name, phone, city, country, profile_picture, presentation, interests, date_of_birth, email]
-    : [name, phone, city, country, presentation, interests, date_of_birth, email];
+    ? [name, phone, city, country, profile_picture, presentation, formattedInterests, date_of_birth, email]
+    : [name, phone, city, country, presentation, formattedInterests, date_of_birth, email];
 
   db.query(updateQuery, values, (err) => {
     if (err) {
@@ -138,6 +143,7 @@ app.put('/api/users/update', upload.single('profile_picture'), (req, res) => {
     return res.status(200).json({ message: 'Profil mis à jour avec succès.' });
   });
 });
+
 
 // Route pour souscrire à un cours
 app.post('/api/course_students', (req, res) => {

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import './styles/styles.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
-import { FaEdit, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { BsPerson, BsStar, BsEnvelope, BsTelephone, BsBook, BsStarFill, BsPersonFill, BsEnvelopeFill, BsTelephoneFill, BsBookmarkHeart, BsFacebook, BsBookmarkCheck } from 'react-icons/bs';
 
 interface StudentProfileData {
   id: number;
@@ -12,12 +13,24 @@ interface StudentProfileData {
   city: string;
   country: string;
   profile_picture: string;
+  presentation: string;
+  interests: string;
+  subscribed_courses?: SubscribedCourse[];
+}
+
+interface SubscribedCourse {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  location: string;
+  duration: string;
 }
 
 const StudentProfile: React.FC = () => {
   const [profile, setProfile] = useState<StudentProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(''); // Gestion des erreurs
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,15 +47,16 @@ const StudentProfile: React.FC = () => {
         const response = await axios.get<StudentProfileData>(
           `http://localhost:5000/api/users/profile?email=${userEmail}`
         );
-        setProfile(response.data);
+        const profileData = response.data;
+        setProfile(profileData);
+
+        // Fetch subscribed courses
+        const coursesResponse = await axios.get<SubscribedCourse[]>(
+          `http://localhost:5000/api/student/${profileData.id}/subscribed-courses`
+        );
+        setProfile((prevProfile) => prevProfile ? { ...prevProfile, subscribed_courses: coursesResponse.data } : null);
       } catch (error) {
-        const err = error as { response?: { status?: number } }; // Typage interne de l'erreur
-        console.error('Erreur lors de la récupération du profil utilisateur :', err);
-        if (err.response && err.response.status === 404) {
-          setErrorMessage('Utilisateur non trouvé. Veuillez vérifier vos informations.');
-        } else {
-          setErrorMessage('Erreur lors du chargement des données utilisateur.');
-        }
+        setErrorMessage('Erreur lors du chargement des données utilisateur.');
       } finally {
         setIsLoading(false);
       }
@@ -64,69 +78,92 @@ const StudentProfile: React.FC = () => {
   }
 
   return (
-    <div className="container mt-5">
-      <div className="profile-container shadow-lg rounded bg-white p-4">
-        {/* Header Section */}
-        <div className="text-center mb-4">
-          <img
-            src={
-              profile.profile_picture
-                ? `http://localhost:5000${profile.profile_picture}` // URL dynamique pour l'image
-                : 'https://via.placeholder.com/150' // Image par défaut
-            }
-            alt="Profile"
-            className="rounded-circle"
-            style={{
-              width: '120px',
-              height: '120px',
-              objectFit: 'cover',
-              border: '4px solid #007bff',
-            }}
-          />
-          <h2 className="mt-3">{profile.name || 'Nom non fourni'}</h2>
-          <p className="text-muted">
-            <FaMapMarkerAlt /> {profile.city || 'Ville non fournie'}, {profile.country || 'Pays non fourni'}
-          </p>
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={() => navigate('/edit-profile')} // Redirection vers la page d'édition
-          >
-            <FaEdit className="me-2" />
-            Modifier le profil
-          </button>
-        </div>
+    <>
+      <div className="container mt-5 mb-auto">
+        <div className="row">
+          <div className="col-md-4 text-center">
+            <img
+              src={
+                profile.profile_picture
+                  ? `http://localhost:5000${profile.profile_picture}`
+                  : 'https://via.placeholder.com/150'
+              }
+              alt="Profile"
+              className="rounded-circle border border-primary mb-3"
+              style={{ width: '120px', height: '120px', objectFit: 'cover' }}
+            />
+            <h4 className="mt-2" style={{ fontSize: '1.2rem' }}>{profile.name}</h4>
+            <p className="text-muted" style={{ fontSize: '0.9rem' }}>
+              {profile.city}, {profile.country}
+            </p>
+            <p style={{ fontSize: '0.9rem' }}>
+              <strong>Profil:</strong> Étudiant
+            </p>
+            <p style={{ fontSize: '0.9rem' }}>
+              <BsTelephoneFill className="me-1" /> {profile.phone}
+            </p>
+            <p style={{ fontSize: '0.9rem' }}>
+              <BsEnvelopeFill className="me-1" /> {profile.email}
+            </p>
+            <button
+              className="btn btn-primary mt-2"
+              onClick={() => navigate('/edit-profile')}
+              style={{ fontSize: '0.8rem' }}
+            >
+              <FaEdit className="me-1" /> Modifier
+            </button>
+          </div>
 
-        {/* Details Section */}
-        <div className="row mt-4">
-          <div className="col-md-6">
-            <div className="info-card p-3 bg-light rounded">
-              <h5 className="fw-bold text-primary">Informations de contact</h5>
-              <p>
-                <FaEnvelope className="me-2" /> {profile.email}
-              </p>
-              <p>
-                <FaPhone className="me-2" /> {profile.phone || 'Téléphone non fourni'}
-              </p>
+          <div className="col-md-8">
+            <div className="row gx-5">
+              <div className="col-md-6">
+                <h5 className="text-primary" style={{ fontSize: '1rem' }}>
+                  <BsPersonFill className="me-1" /> Présentation :
+                </h5>
+                <p style={{ fontSize: '0.9rem' }}>{profile.presentation ? profile.presentation : 'Aucune présentation disponible.'}</p>
+                <h5 className="text-primary mt-3" style={{ fontSize: '1rem' }}>
+                  <BsStarFill className="me-1" /> Interests :
+                </h5>
+                <ul className="list-disc" style={{ fontSize: '0.9rem', listStyleType: 'disc', paddingLeft: '20px' }}>
+                  {profile.interests ? (
+                    profile.interests.split(',').map((interest, index) => (
+                      <li key={index}>{interest.trim()}</li>
+                    ))
+                  ) : (
+                    <li>Aucun centre d'intérêt disponible.</li>
+                  )}
+                </ul>
+              </div>
+
+              <div className="col-md-6">
+                <h5 className="text-primary" style={{ fontSize: '1rem', marginBottom: '1rem' }}>
+                  <BsStarFill className="me-1" /> Derniers Cours Souscrits :
+                </h5>
+                <ul className="list-unstyled" style={{ fontSize: '0.9rem' }}>
+                  {profile.subscribed_courses && profile.subscribed_courses.length > 0 ? (
+                    profile.subscribed_courses.slice(0, 5).map((course) => (
+                      <li key={course.id} className="mb-2 d-flex align-items-start">
+                        <BsBookmarkCheck className="me-2 text-primary" />
+                        <div>
+                          <h6 style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{course.title}</h6>
+                          <p style={{ fontSize: '0.8rem', marginBottom: '0' }}>{course.description}</p>
+                          <p style={{ fontSize: '0.8rem', color: 'gray' }}>{course.category} - {course.location}</p>
+                        </div>
+                      </li>
+                    ))
+                  ) : (
+                    <li>Aucun cours souscrit.</li>
+                  )}
+                </ul>
+              </div>
             </div>
           </div>
-          <div className="col-md-6">
-            <div className="info-card p-3 bg-light rounded">
-              <h5 className="fw-bold text-primary">À propos de moi</h5>
-              <p>
-                {`Bienvenue sur mon profil. Je m'appelle ${profile.name || 'Inconnu'}. Je viens de ${
-                  profile.city || 'N/A'
-                }, ${profile.country || 'N/A'}.`}
-              </p>
-            </div>
-          </div>
         </div>
-
-        {/* Footer */}
-        <footer className="footer bg-dark text-white py-3 mt-5 text-center rounded">
-          <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
-        </footer>
       </div>
-    </div>
+      <footer className="footer bg-dark text-white py-2 mt-3 text-center rounded">
+        <p style={{ fontSize: '0.8rem' }}>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
+      </footer>
+    </>
   );
 };
 

@@ -116,7 +116,7 @@ const Navbar: React.FC = () => {
               </>
             )}
             <li className="nav-item">
-              <button className="btn btn-danger nav-link text-white" onClick={handleLogout}>
+              <button className="btn  btn-danger btn-sm nav-link text-white" onClick={handleLogout}>
                 Log Out
               </button>
             </li>
