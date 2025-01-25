@@ -9,13 +9,13 @@ const Home: React.FC = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('Student');
   const [message, setMessage] = useState('');
-  const [isError, setIsError] = useState(false); // État pour suivre si le message est une erreur
+  const [isError, setIsError] = useState(false); // Suivi si le message est une erreur
   const navigate = useNavigate();
 
   // Fonction de validation du formulaire
   const validateForm = () => {
     if (!email || !password || !role) {
-      setMessage('Please enter your email and password.');
+      setMessage('Please enter your email, password, and select a role.');
       setIsError(true); // Définit le message comme une erreur
       return false;
     }
@@ -37,19 +37,21 @@ const Home: React.FC = () => {
 
       const user = response.data.user;
 
-      // Vérifie si le rôle sélectionné correspond au rôle de l'utilisateur
+      // Vérifiez si le rôle sélectionné correspond au rôle de l'utilisateur
       if (user.role !== role) {
-        setMessage('Choose the right role.');
+        setMessage('Choose the correct role.');
         setIsError(true);
         return;
       }
 
-      // Stocke l'ID, le rôle et l'email dans le localStorage
-      localStorage.setItem('userId', user.id);
-      localStorage.setItem('role', user.role);
-      localStorage.setItem('email', user.email);
+      // Stocke les informations utilisateur dans le localStorage
+      localStorage.setItem('userId', user.id); // Stocke l'ID
+      localStorage.setItem('role', user.role); // Stocke le rôle
+      localStorage.setItem('email', user.email); // Stocke l'email
 
-      // Redirige vers la page appropriée selon le rôle
+      console.log("User successfully logged in:", user); // Log pour le débogage
+
+      // Redirection vers la page appropriée
       if (role === 'Student') {
         navigate('/student-profile');
       } else if (role === 'Professor') {
@@ -60,11 +62,12 @@ const Home: React.FC = () => {
       if (err.response?.status === 401) {
         setMessage('Invalid email or password.');
       } else if (err.response?.status === 403) {
-        setMessage('Choose the right role.');
+        setMessage('Choose the correct role.');
       } else {
         setMessage('An error occurred while logging in. Please try again.');
       }
       setIsError(true);
+      console.error('Login Error:', error); // Log de l'erreur pour le débogage
     }
   };
 
@@ -95,6 +98,7 @@ const Home: React.FC = () => {
                   placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
             </div>
@@ -109,6 +113,7 @@ const Home: React.FC = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
               </div>
             </div>
@@ -119,9 +124,10 @@ const Home: React.FC = () => {
                 id="role"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
+                required
               >
-                <option>Student</option>
-                <option>Professor</option>
+                <option value="Student">Student</option>
+                <option value="Professor">Professor</option>
               </select>
             </div>
             <div className="form-check mb-3">

@@ -2,10 +2,13 @@ import React from 'react';
 import './styles/styles.css';
 import Home from './Home';
 import ProfessorProfile from './ProfessorProfile';
-import Professor from './Professor';
+import Professor from './ProfessorCourses';
 import StudentProfile from './StudentProfile';
 import Student from './StudentCourses';
+import CourseStudents from './CourseStudents';
 import EditProfile from './EditProfile'; // Importation de la page EditProfile
+import AddCourse from './AddCourse'; // Importation de la page AddCourse
+
 import Navbar from './components/Navbar';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
@@ -73,6 +76,26 @@ const App: React.FC = () => {
             </WrapperWithNavbar>
           }
         />
+        {/* Nouvelle route pour AddCourse */}
+        <Route
+          path="/add-course"
+          element={
+            <WrapperWithNavbar>
+              <AddCourse />
+            </WrapperWithNavbar>
+          }
+        />
+
+        {/* Ajoutez cette route dans vos Routes pour le professeur*/}
+        <Route
+           path="/course/:courseId/students"
+           element={
+           <WrapperWithNavbar>
+            <CourseStudents />
+          </WrapperWithNavbar>
+  }
+/>
+        
       </Routes>
     </Router>
   );

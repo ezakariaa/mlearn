@@ -1,111 +1,72 @@
 import React, { useEffect, useState } from 'react';
 import './styles/styles.css';
-import Navbar from './components/Navbar'; // Importation et utilisation de Navbar
+import Navbar from './components/Navbar';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { FaBook, FaTrash, FaUser, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaBook, FaClock, FaMapMarkerAlt, FaTrash } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 interface Course {
   id: number;
   title: string;
   description: string;
   category: string;
-  professor_id: number;
   location: string;
   duration: string;
-  professor: string; // Propriété pour le nom du professeur
+  studentCount: number; // Nombre d'étudiants souscrits
 }
 
-const Student: React.FC = () => {
-  const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
-  const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
-  const [subscribedCourseDetails, setSubscribedCourseDetails] = useState<Course[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+const ProfessorCourses: React.FC = () => {
+  const [courses, setCourses] = useState<Course[]>([]);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [subscribedPage, setSubscribedPage] = useState(1);
-  const [subscribedCourses, setSubscribedCourses] = useState<number[]>([]);
+  const coursesPerPage = 9;
+  const navigate = useNavigate();
 
-  const coursesPerPage = 6;
-  const subscribedPerPage = 6;
-
-  const userEmail = localStorage.getItem('email') || 'Non identifié';
-  const studentId = localStorage.getItem('userId');
+  const professorId = localStorage.getItem('userId');
 
   useEffect(() => {
     const fetchCourses = async () => {
-      try {
-        const response = await axios.get<Course[]>('http://localhost:5000/api/courses');
-        setAvailableCourses(response.data || []);
-        setFilteredCourses(response.data || []);
-        const uniqueCategories = Array.from(new Set(response.data.map(course => course.category)));
-        setCategories(uniqueCategories);
-      } catch (error) {
-        console.error('Error fetching courses:', error);
-        setMessage('Failed to fetch courses.');
+      if (!professorId) {
+        setMessage('No professor ID found.');
+        return;
       }
-    };
 
-    const fetchSubscribedCourses = async () => {
       try {
-        const response = await axios.get<Course[]>(`http://localhost:5000/api/student/${studentId}/subscribed-courses`);
-        setSubscribedCourseDetails(response.data || []);
-        setSubscribedCourses(response.data.map(course => course.id));
+        const response = await axios.get<Course[]>(`http://localhost:5000/api/professor/${professorId}/courses`);
+        if (response.data.length === 0) {
+          setMessage('No courses created by You, Professor.');
+        } else {
+          setCourses(response.data || []);
+          setMessage('');
+        }
       } catch (error) {
-        console.error('Error fetching subscribed courses:', error);
+        console.error('Error fetching professor courses:', error);
+        setMessage('Failed to fetch courses. Please try again later.');
       }
     };
 
     fetchCourses();
-    if (studentId) {
-      fetchSubscribedCourses();
-    }
-  }, [studentId]);
+  }, [professorId]);
 
-  const handleSubscribe = async (courseId: number) => {
-    try {
-      await axios.post('http://localhost:5000/api/course_students', {
-        course_id: courseId,
-        student_id: studentId,
-      });
-      setSubscribedCourses(prev => [...prev, courseId]);
-      const courseDetails = availableCourses.find(course => course.id === courseId);
-      if (courseDetails) {
-        setSubscribedCourseDetails(prev => [...prev, courseDetails]);
-      }
-    } catch (error) {
-      console.error('Error subscribing to course:', error);
-      alert('Erreur lors de l\'inscription. Veuillez réessayer.');
-    }
-  };
-
-  const handleDeleteSubscription = async (courseId: number) => {
-    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce cours ?");
+  const handleDeleteCourse = async (courseId: number) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this course?');
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/course_students/${studentId}/${courseId}`);
-      setSubscribedCourses(prev => prev.filter(id => id !== courseId));
-      setSubscribedCourseDetails(prev => prev.filter(course => course.id !== courseId));
+      await axios.delete(`http://localhost:5000/api/courses/${courseId}`);
+      setCourses((prevCourses) => prevCourses.filter((course) => course.id !== courseId));
     } catch (error) {
-      console.error('Error deleting subscription:', error);
-      alert('Erreur lors de la suppression. Veuillez réessayer.');
-    }
-  };
-
-  const handleFilterChange = (category: string) => {
-    setCurrentPage(1);
-    if (category === '') {
-      setFilteredCourses(availableCourses);
-    } else {
-      setFilteredCourses(availableCourses.filter(course => course.category === category));
+      console.error('Error deleting course:', error);
+      alert('Failed to delete the course. Please try again.');
     }
   };
 
   const indexOfLastCourse = currentPage * coursesPerPage;
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
-  const currentCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
+  const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
 
-  const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
+  const totalPages = Math.ceil(courses.length / coursesPerPage);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -119,78 +80,62 @@ const Student: React.FC = () => {
     }
   };
 
-  const indexOfLastSubscribed = subscribedPage * subscribedPerPage;
-  const indexOfFirstSubscribed = indexOfLastSubscribed - subscribedPerPage;
-  const currentSubscribedCourses = subscribedCourseDetails.slice(indexOfFirstSubscribed, indexOfLastSubscribed);
-
-  const subscribedTotalPages = Math.ceil(subscribedCourseDetails.length / subscribedPerPage);
-
-  const handleSubscribedNextPage = () => {
-    if (subscribedPage < subscribedTotalPages) {
-      setSubscribedPage(subscribedPage + 1);
-    }
-  };
-
-  const handleSubscribedPrevPage = () => {
-    if (subscribedPage > 1) {
-      setSubscribedPage(subscribedPage - 1);
-    }
-  };
-
   return (
-    <div className="student-page d-flex flex-column min-vh-100">
+    <div className="professor-page d-flex flex-column min-vh-100">
       <div className="container mt-3 pt-3">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2 className="custom-title">Browse Available Courses</h2>
-        </div>
-
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <strong>Connecté :</strong> {userEmail}
-          </div>
-
-          <div className="filter-container d-flex align-items-center">
-            <label className="me-2" style={{ whiteSpace: 'nowrap' }}>Sort by:</label>
-            <select
-              className="form-select"
-              onChange={(e) => handleFilterChange(e.target.value)}
-            >
-              <option value="">All</option>
-              {categories.map((category, index) => (
-                <option key={index} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
+          <h2 className="custom-title">List of your proposed courses</h2>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate('/add-course')}
+          >
+            Add Course
+          </button>
         </div>
 
         {message && <p className="text-danger text-left">{message}</p>}
 
         <div className="courses-container">
-          {currentCourses.length === 0 ? (
-            <p className="text-left">No courses available for the selected category.</p>
+          {currentCourses.length === 0 && !message ? (
+            <p className="text-left">No courses available.</p>
           ) : (
-            currentCourses.map(course => (
+            currentCourses.map((course) => (
               <div key={course.id} className="course-card">
                 <div className="course-header">
-                  <h5>{course.title}</h5>
+                  {/* Lien pour rediriger vers CourseStudents.tsx */}
+                  <Link
+                    to={`/course/${course.id}/students`}
+                    className="course-title-link"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    <h5>{course.title}</h5>
+                  </Link>
                   <span className="category-badge">{course.category.toUpperCase()}</span>
                 </div>
-                <p className="course-description">{course.description}</p>
+                <p className="course-description">
+                  {course.description.split(' ').slice(0, 20).join(' ')}...
+                </p>
                 <div className="course-info">
-                  <span><FaUser className="me-1 text-primary" /><strong>Professor: {course.professor}</strong></span>
-                  <span><FaClock className="me-1 text-success" />Duration: {course.duration}</span>
-                  <span><FaMapMarkerAlt className="me-1 text-danger" />Location: {course.location}</span>
+                  <span>
+                    <FaBook className="me-1 text-success" />
+                    <strong>{course.studentCount} students enrolled</strong>
+                  </span>
+                  <span>
+                    <FaClock className="me-1 text-success" />
+                    Duration: {course.duration} hours
+                  </span>
+                  <span>
+                    <FaMapMarkerAlt className="me-1 text-danger" />
+                    Location: {course.location}
+                  </span>
                 </div>
                 <div className="d-flex justify-content-end mt-2">
                   <button
-                    className="btn btn-outline-primary d-flex align-items-center"
-                    onClick={() => handleSubscribe(course.id)}
-                    disabled={subscribedCourses.includes(course.id)}
+                    className="btn btn-outline-danger btn-small d-flex align-items-center justify-content-center"
+                    onClick={() => handleDeleteCourse(course.id)}
                   >
-                    <FaBook className="me-2" />
-                    {subscribedCourses.includes(course.id) ? 'Souscrit' : 'Souscrire'}
+                    <FaTrash className="me-2" style={{ fontSize: '14px' }} />
+                    DELETE
                   </button>
                 </div>
               </div>
@@ -198,7 +143,7 @@ const Student: React.FC = () => {
           )}
         </div>
 
-        {filteredCourses.length > coursesPerPage && (
+        {courses.length > coursesPerPage && (
           <div className="pagination-container d-flex justify-content-between align-items-center mt-4">
             <button
               className="btn btn-outline-primary"
@@ -219,61 +164,6 @@ const Student: React.FC = () => {
             </button>
           </div>
         )}
-
-        <div className="mt-5">
-          <h2 className="custom-title">Courses you have subscribed to:</h2>
-          {currentSubscribedCourses.length === 0 ? (
-            <p>You have not subscribed to any courses yet.</p>
-          ) : (
-            <div className="courses-container">
-              {currentSubscribedCourses.map(course => (
-                <div key={course.id} className="course-card">
-                  <div className="course-header">
-                    <h5>{course.title}</h5>
-                    <span className="category-badge">{course.category.toUpperCase()}</span>
-                  </div>
-                  <p className="course-description">{course.description}</p>
-                  <div className="course-info">
-                    <span><FaUser className="me-1 text-primary" /><strong>Professor: {course.professor}</strong></span>
-                    <span><FaClock className="me-1 text-success" />Duration: {course.duration}</span>
-                    <span><FaMapMarkerAlt className="me-1 text-danger" />Location: {course.location}</span>
-                  </div>
-                  <div className="d-flex justify-content-end mt-2">
-                    <button
-                      className="btn btn-outline-danger d-flex align-items-center"
-                      onClick={() => handleDeleteSubscription(course.id)}
-                    >
-                      <FaTrash className="me-2" />
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {subscribedCourseDetails.length > subscribedPerPage && (
-            <div className="pagination-container d-flex justify-content-between align-items-center mt-4">
-              <button
-                className="btn btn-outline-primary"
-                disabled={subscribedPage === 1}
-                onClick={handleSubscribedPrevPage}
-              >
-                Previous
-              </button>
-              <span>
-                Page {subscribedPage} of {subscribedTotalPages}
-              </span>
-              <button
-                className="btn btn-outline-primary"
-                disabled={subscribedPage === subscribedTotalPages}
-                onClick={handleSubscribedNextPage}
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
       </div>
 
       <footer className="footer bg-dark text-white py-3 mt-auto">
@@ -285,4 +175,4 @@ const Student: React.FC = () => {
   );
 };
 
-export default Student;
+export default ProfessorCourses;

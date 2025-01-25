@@ -128,6 +128,26 @@ body {
   border-color: #6c757d;
 }
 
+.btn-small {
+  padding: 2px 4px !important; /* Réduit le padding */
+  font-size: 14px !important; /* Taille de police */
+  height: auto !important; /* Hauteur automatique */
+  width: auto !important; /* Largeur automatique */
+  line-height: 2 !important; /* Espacement vertical compact */
+  text-transform: uppercase; /* Texte en majuscules */
+  border-width: 2px !important; /* Bordure fine */
+}
+
+.btn-delete {
+  padding: 0; /* Supprime les marges internes */
+  font-size: 12px; /* Adapte la taille de la police */
+  height: auto; /* Ajuste la hauteur automatiquement */
+  width: auto; /* Ajuste la largeur automatiquement */
+  line-height: normal; /* Aligne bien le texte */
+  text-transform: uppercase; /* Pour que le texte soit tout en majuscules */
+}
+
+
 .d-flex.gap-2 {
   display: flex;
   gap: 10px;

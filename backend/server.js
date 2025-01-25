@@ -71,7 +71,12 @@ app.post('/api/login', (req, res) => {
 
     return res.status(200).json({
       message: 'Connexion réussie.',
-      user,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   });
 });
@@ -81,7 +86,6 @@ app.get('/api/users/profile', (req, res) => {
   const email = req.query.email;
 
   if (!email) {
-    console.log('Email manquant pour le profil utilisateur.');
     return res.status(400).json({ message: 'Email requis pour récupérer le profil utilisateur.' });
   }
 
@@ -94,7 +98,6 @@ app.get('/api/users/profile', (req, res) => {
     }
 
     if (results.length === 0) {
-      console.log('Aucun utilisateur trouvé avec cet email :', email);
       return res.status(404).json({ message: 'Utilisateur non trouvé.' });
     }
 
@@ -111,10 +114,7 @@ app.put('/api/users/update', upload.single('profile_picture'), (req, res) => {
     return res.status(400).json({ message: 'Email est requis.' });
   }
 
-  // Assurez-vous que les intérêts sont une chaîne séparée par des virgules
-  const formattedInterests = Array.isArray(interests)
-    ? interests.join(',')
-    : interests;
+  const formattedInterests = Array.isArray(interests) ? interests.join(',') : interests;
 
   const updateQuery = `
     UPDATE users
@@ -144,7 +144,6 @@ app.put('/api/users/update', upload.single('profile_picture'), (req, res) => {
   });
 });
 
-
 // Route pour souscrire à un cours
 app.post('/api/course_students', (req, res) => {
   const { course_id, student_id } = req.body;
@@ -153,7 +152,6 @@ app.post('/api/course_students', (req, res) => {
     return res.status(400).json({ message: 'course_id et student_id sont requis.' });
   }
 
-  // Récupération du professor_id pour le cours
   const getCourseQuery = 'SELECT professor_id FROM courses WHERE id = ?';
   db.query(getCourseQuery, [course_id], (err, courseResults) => {
     if (err) {
@@ -167,14 +165,13 @@ app.post('/api/course_students', (req, res) => {
 
     const professor_id = courseResults[0].professor_id;
 
-    // Insertion dans course_students
     const insertQuery = `
       INSERT INTO course_students (course_id, student_id, professor)
       VALUES (?, ?, ?)
     `;
     db.query(insertQuery, [course_id, student_id, professor_id], (err) => {
       if (err) {
-        console.error('Erreur lors de l\'insertion dans course_students :', err);
+        console.error('Erreur lors de l\'inscription :', err);
         return res.status(500).json({ message: 'Erreur lors de l\'inscription.' });
       }
 
@@ -222,6 +219,42 @@ app.get('/api/student/:id/subscribed-courses', (req, res) => {
   });
 });
 
+// Route pour récupérer les cours d'un professeur avec le nombre d'étudiants inscrits
+app.get('/api/professor/:id/courses', (req, res) => {
+  const professorId = req.params.id;
+
+  if (!professorId) {
+    return res.status(400).json({ message: 'ID du professeur requis.' });
+  }
+
+  const query = `
+    SELECT 
+      c.id, 
+      c.title, 
+      c.description, 
+      c.category, 
+      c.location, 
+      c.duration, 
+      (SELECT COUNT(*) FROM course_students WHERE course_id = c.id) AS studentCount
+    FROM courses c
+    WHERE c.professor_id = ?
+  `;
+
+  db.query(query, [professorId], (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la récupération des cours :', err);
+      return res.status(500).json({ message: 'Erreur serveur.' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Aucun cours trouvé pour ce professeur.' });
+    }
+
+    return res.status(200).json(results);
+  });
+});
+
+
 // Route pour supprimer une inscription à un cours
 app.delete('/api/course_students/:student_id/:course_id', (req, res) => {
   const { student_id, course_id } = req.params;
@@ -245,6 +278,89 @@ app.delete('/api/course_students/:student_id/:course_id', (req, res) => {
     return res.status(200).json({ message: 'Inscription supprimée avec succès.' });
   });
 });
+
+// Route pour ajouter un nouveau cours
+app.post('/api/courses', (req, res) => {
+  const { title, description, category, location, duration, professor_id } = req.body;
+
+  if (!title || !description || !category || !location || !duration || !professor_id) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  const query = `
+    INSERT INTO courses (title, description, category, location, duration, professor_id)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(query, [title, description, category, location, duration, professor_id], (err, results) => {
+    if (err) {
+      console.error('Error adding course:', err);
+      return res.status(500).json({ message: 'Failed to add the course.' });
+    }
+
+    return res.status(201).json({ message: 'Course added successfully.', courseId: results.insertId });
+  });
+});
+
+// Route pour supprimer un cours
+app.delete('/api/courses/:id', (req, res) => {
+  const courseId = req.params.id;
+
+  const query = 'DELETE FROM courses WHERE id = ?';
+  db.query(query, [courseId], (err, result) => {
+    if (err) {
+      console.error('Error deleting course:', err);
+      return res.status(500).json({ message: 'Failed to delete the course.' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Course not found.' });
+    }
+
+    res.status(200).json({ message: 'Course deleted successfully.' });
+  });
+});
+
+// Route pour récupérer les détails d'un cours par ID
+app.get('/api/courses/:id', (req, res) => {
+  const courseId = req.params.id;
+
+  const query = 'SELECT * FROM courses WHERE id = ?';
+  db.query(query, [courseId], (err, results) => {
+    if (err) {
+      console.error('Error fetching course details:', err);
+      return res.status(500).json({ message: 'Server error.' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Course not found.' });
+    }
+
+    return res.status(200).json(results[0]);
+  });
+});
+
+// Route pour récupérer les étudiants inscrits à un cours
+app.get('/api/course/:id/students', (req, res) => {
+  const courseId = req.params.id;
+
+  const query = `
+    SELECT s.id, s.name, s.email
+    FROM course_students cs
+    JOIN users s ON cs.student_id = s.id
+    WHERE cs.course_id = ?
+  `;
+
+  db.query(query, [courseId], (err, results) => {
+    if (err) {
+      console.error('Error fetching students:', err);
+      return res.status(500).json({ message: 'Server error.' });
+    }
+
+    return res.status(200).json(results);
+  });
+});
+
 
 // Gestion des routes non trouvées
 app.use((req, res) => {
