@@ -1,21 +1,46 @@
-import React, { useState } from 'react';
-import './styles/styles.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './styles/styles.css';
 
-const AddCourse: React.FC = () => {
+const EditCourse: React.FC = () => {
+  const { courseId } = useParams<{ courseId: string }>();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
-  const [location, setLocation] = useState('Online');
+  const [location, setLocation] = useState('');
   const [duration, setDuration] = useState<number | ''>('');
-  const [message, setMessage] = useState('');
   const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null); // URL de l'aperçu de l'image
+  const [preview, setPreview] = useState<string | null>(null); // Aperçu de l'image
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  const professorId = localStorage.getItem('userId');
+  // Récupération des détails du cours
+  useEffect(() => {
+    const fetchCourseDetails = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/courses/${courseId}`);
+        const { title, description, category, location, duration, course_image } = response.data;
 
+        setTitle(title);
+        setDescription(description);
+        setCategory(category);
+        setLocation(location);
+        setDuration(duration);
+
+        if (course_image) {
+          setPreview(`http://localhost:5000${course_image}`);
+        }
+      } catch (error) {
+        console.error('Error fetching course details:', error);
+        setMessage('Failed to fetch course details. Please try again.');
+      }
+    };
+
+    fetchCourseDetails();
+  }, [courseId]);
+
+  // Gestion de l'image
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setImage(file);
@@ -26,16 +51,15 @@ const AddCourse: React.FC = () => {
         setPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-    } else {
-      setPreview(null);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Soumission de la mise à jour
+  const handleUpdateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !description || !category || !duration || !image) {
-      setMessage('Please fill in all required fields and choose an image.');
+    if (!title || !description || !category || !location || !duration) {
+      setMessage('Please fill in all required fields.');
       return;
     }
 
@@ -45,36 +69,43 @@ const AddCourse: React.FC = () => {
     formData.append('category', category);
     formData.append('location', location);
     formData.append('duration', String(duration));
-    formData.append('professor_id', professorId || '');
-    formData.append('course_image', image);
+    if (image) {
+      formData.append('course_image', image);
+    }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/courses', formData, {
+      const response = await axios.put(`http://localhost:5000/api/courses/${courseId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      if (response.status === 201) {
-        setMessage('Course added successfully!');
+      if (response.status === 200) {
+        setMessage('Course updated successfully!');
         setTimeout(() => {
-          navigate('/professor-courses');
+          navigate('/professor-courses'); // Redirection vers la liste des cours
         }, 2000);
       }
     } catch (error) {
-      console.error('Error adding course:', error);
-      setMessage('Failed to add the course. Please try again.');
+      console.error('Error updating course:', error);
+      setMessage('Failed to update the course. Please try again.');
     }
   };
 
-  return (
-    <div className="add-course-page d-flex flex-column min-vh-100">
-      <div className="container mt-4">
-        <h2 className="custom-title mb-4">Add a New Course</h2>
+  // Annulation de la modification
+  const handleCancel = () => {
+    navigate('/professor-courses'); // Retour à la page précédente
+  };
 
+  return (
+    <div className="edit-course-page d-flex flex-column min-vh-100">
+      <div className="container mt-4">
+        <h2 className="custom-title mb-4">Edit Course</h2>
+
+        {/* Message de succès ou d'erreur */}
         {message && <p className={`text-${message.includes('success') ? 'success' : 'danger'}`}>{message}</p>}
 
-        <form onSubmit={handleSubmit} className="row shadow p-4">
+        <form onSubmit={handleUpdateCourse} className="row shadow p-4">
           {/* Colonne gauche : Image */}
           <div className="col-md-4">
             <div className="form-group mb-3">
@@ -86,12 +117,11 @@ const AddCourse: React.FC = () => {
                 name="course_image"
                 onChange={handleImageChange}
                 accept="image/*"
-                required
               />
             </div>
             {preview && (
               <div className="mt-3 text-center">
-                <p style={{ fontWeight: 'bold' }}>Preview Image:</p>
+                <p>Preview Image:</p>
                 <img
                   src={preview}
                   alt="Course Preview"
@@ -114,7 +144,6 @@ const AddCourse: React.FC = () => {
                 type="text"
                 className="form-control"
                 id="title"
-                placeholder="Enter course title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
@@ -125,11 +154,10 @@ const AddCourse: React.FC = () => {
               <textarea
                 className="form-control"
                 id="description"
-                placeholder="Enter course description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                style={{ height: '280px' }} // Hauteur augmentée
                 required
+                style={{ minHeight: '280px' }} // Zone de texte agrandie
               ></textarea>
             </div>
             <div className="form-group mb-3">
@@ -168,15 +196,38 @@ const AddCourse: React.FC = () => {
                 type="number"
                 className="form-control"
                 id="duration"
-                placeholder="Enter course duration"
                 value={duration}
                 onChange={(e) => setDuration(e.target.valueAsNumber || '')}
                 required
               />
             </div>
-            <button type="submit" className="btn btn-primary w-100">
-              Add Course
-            </button>
+
+            {/* Boutons Update et Cancel */}
+            <div className="d-flex justify-content-center gap-3">
+              <button
+                type="submit"
+                className="btn btn-primary btn-sm"
+                style={{
+                  fontSize: '0.85rem',
+                  padding: '8px 15px',
+                  borderRadius: '5px',
+                }}
+              >
+                Update Course
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={handleCancel}
+                style={{
+                  fontSize: '0.85rem',
+                  padding: '8px 15px',
+                  borderRadius: '5px',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -190,4 +241,4 @@ const AddCourse: React.FC = () => {
   );
 };
 
-export default AddCourse;
+export default EditCourse;

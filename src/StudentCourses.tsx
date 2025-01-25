@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './styles/styles.css';
-import Navbar from './components/Navbar'; // Importation et utilisation de Navbar
+import Navbar from './components/Navbar'; // Navbar intégrée
 import axios from 'axios';
 import { FaBook, FaTrash, FaUser, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 interface Course {
   id: number;
@@ -12,14 +13,15 @@ interface Course {
   professor_id: number;
   location: string;
   duration: string;
-  professor: string; // Propriété pour le nom du professeur
+  professor?: string; // Nom du professeur (optionnel)
 }
 
-const Student: React.FC = () => {
+const StudentCourses: React.FC = () => {
   const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [subscribedCourseDetails, setSubscribedCourseDetails] = useState<Course[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
+  const [subscribedCategories, setSubscribedCategories] = useState<string[]>([]);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [subscribedPage, setSubscribedPage] = useState(1);
@@ -30,6 +32,7 @@ const Student: React.FC = () => {
 
   const userEmail = localStorage.getItem('email') || 'Non identifié';
   const studentId = localStorage.getItem('userId');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -37,7 +40,7 @@ const Student: React.FC = () => {
         const response = await axios.get<Course[]>('http://localhost:5000/api/courses');
         setAvailableCourses(response.data || []);
         setFilteredCourses(response.data || []);
-        const uniqueCategories = Array.from(new Set(response.data.map(course => course.category)));
+        const uniqueCategories = Array.from(new Set(response.data.map((course) => course.category)));
         setCategories(uniqueCategories);
       } catch (error) {
         console.error('Error fetching courses:', error);
@@ -47,9 +50,36 @@ const Student: React.FC = () => {
 
     const fetchSubscribedCourses = async () => {
       try {
-        const response = await axios.get<Course[]>(`http://localhost:5000/api/student/${studentId}/subscribed-courses`);
-        setSubscribedCourseDetails(response.data || []);
-        setSubscribedCourses(response.data.map(course => course.id));
+        const response = await axios.get<Course[]>(
+          `http://localhost:5000/api/student/${studentId}/subscribed-courses`
+        );
+
+        const subscribedCoursesWithProfessors = await Promise.all(
+          response.data.map(async (course) => {
+            try {
+              const professorResponse = await axios.get(
+                `http://localhost:5000/api/professor/${course.professor_id}`
+              );
+              return {
+                ...course,
+                professor: professorResponse.data.name,
+              };
+            } catch (error) {
+              console.error(`Error fetching professor for course ID ${course.id}:`, error);
+              return {
+                ...course,
+                professor: 'Unknown',
+              };
+            }
+          })
+        );
+
+        setSubscribedCourseDetails(subscribedCoursesWithProfessors);
+        setSubscribedCourses(subscribedCoursesWithProfessors.map((course) => course.id));
+        const uniqueSubscribedCategories = Array.from(
+          new Set(subscribedCoursesWithProfessors.map((course) => course.category))
+        );
+        setSubscribedCategories(uniqueSubscribedCategories);
       } catch (error) {
         console.error('Error fetching subscribed courses:', error);
       }
@@ -67,10 +97,10 @@ const Student: React.FC = () => {
         course_id: courseId,
         student_id: studentId,
       });
-      setSubscribedCourses(prev => [...prev, courseId]);
-      const courseDetails = availableCourses.find(course => course.id === courseId);
+      setSubscribedCourses((prev) => [...prev, courseId]);
+      const courseDetails = availableCourses.find((course) => course.id === courseId);
       if (courseDetails) {
-        setSubscribedCourseDetails(prev => [...prev, courseDetails]);
+        setSubscribedCourseDetails((prev) => [...prev, courseDetails]);
       }
     } catch (error) {
       console.error('Error subscribing to course:', error);
@@ -79,13 +109,13 @@ const Student: React.FC = () => {
   };
 
   const handleDeleteSubscription = async (courseId: number) => {
-    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce cours ?");
+    const confirmDelete = window.confirm('Êtes-vous sûr de vouloir supprimer ce cours ?');
     if (!confirmDelete) return;
 
     try {
       await axios.delete(`http://localhost:5000/api/course_students/${studentId}/${courseId}`);
-      setSubscribedCourses(prev => prev.filter(id => id !== courseId));
-      setSubscribedCourseDetails(prev => prev.filter(course => course.id !== courseId));
+      setSubscribedCourses((prev) => prev.filter((id) => id !== courseId));
+      setSubscribedCourseDetails((prev) => prev.filter((course) => course.id !== courseId));
     } catch (error) {
       console.error('Error deleting subscription:', error);
       alert('Erreur lors de la suppression. Veuillez réessayer.');
@@ -97,7 +127,18 @@ const Student: React.FC = () => {
     if (category === '') {
       setFilteredCourses(availableCourses);
     } else {
-      setFilteredCourses(availableCourses.filter(course => course.category === category));
+      setFilteredCourses(availableCourses.filter((course) => course.category === category));
+    }
+  };
+
+  const handleSubscribedFilterChange = (category: string) => {
+    setSubscribedPage(1);
+    if (category === '') {
+      setSubscribedCourseDetails(subscribedCourseDetails);
+    } else {
+      setSubscribedCourseDetails(
+        subscribedCourseDetails.filter((course) => course.category === category)
+      );
     }
   };
 
@@ -129,7 +170,10 @@ const Student: React.FC = () => {
 
   const indexOfLastSubscribed = subscribedPage * subscribedPerPage;
   const indexOfFirstSubscribed = indexOfLastSubscribed - subscribedPerPage;
-  const currentSubscribedCourses = subscribedCourseDetails.slice(indexOfFirstSubscribed, indexOfLastSubscribed);
+  const currentSubscribedCourses = subscribedCourseDetails.slice(
+    indexOfFirstSubscribed,
+    indexOfLastSubscribed
+  );
 
   const subscribedTotalPages = Math.ceil(subscribedCourseDetails.length / subscribedPerPage);
 
@@ -147,18 +191,15 @@ const Student: React.FC = () => {
 
   return (
     <div className="student-page d-flex flex-column min-vh-100">
+
       <div className="container mt-3 pt-3">
+        {/* Première section */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="custom-title">Browse Available Courses</h2>
-        </div>
-
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <strong>Connecté :</strong> {userEmail}
-          </div>
-
           <div className="filter-container d-flex align-items-center">
-            <label className="me-2" style={{ whiteSpace: 'nowrap' }}>Sort by:</label>
+            <label className="me-2" style={{ whiteSpace: 'nowrap' }}>
+              Sort by:
+            </label>
             <select
               className="form-select"
               onChange={(e) => handleFilterChange(e.target.value)}
@@ -179,19 +220,33 @@ const Student: React.FC = () => {
           {currentCourses.length === 0 ? (
             <p className="text-left">No courses available for the selected category.</p>
           ) : (
-            currentCourses.map(course => (
+            currentCourses.map((course) => (
               <div key={course.id} className="course-card">
                 <div className="course-header">
-                  <h5>{course.title}</h5>
+                  <h5
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => navigate(`/course/${course.id}`)} // Redirection
+                  >
+                    {course.title}
+                  </h5>
                   <span className="category-badge">{course.category.toUpperCase()}</span>
                 </div>
                 <p className="course-description">
                   {truncateDescription(course.description, 20)}
                 </p>
                 <div className="course-info">
-                  <span><FaUser className="me-1 text-primary" /><strong>Professor: {course.professor}</strong></span>
-                  <span><FaClock className="me-1 text-success" />Duration: {course.duration} hours</span>
-                  <span><FaMapMarkerAlt className="me-1 text-danger" />Location: {course.location}</span>
+                  <span>
+                    <FaUser className="me-1 text-primary" />
+                    <strong>Professor: {course.professor || 'Unknown'}</strong>
+                  </span>
+                  <span>
+                    <FaClock className="me-1 text-success" />
+                    Duration: {course.duration} hours
+                  </span>
+                  <span>
+                    <FaMapMarkerAlt className="me-1 text-danger" />
+                    Location: {course.location}
+                  </span>
                 </div>
                 <div className="d-flex justify-content-end mt-2">
                   <button
@@ -200,7 +255,7 @@ const Student: React.FC = () => {
                     disabled={subscribedCourses.includes(course.id)}
                   >
                     <FaBook className="me-2" />
-                    {subscribedCourses.includes(course.id) ? 'Souscrit' : 'Souscrire'}
+                    {subscribedCourses.includes(course.id) ? 'Subscribed' : 'Subscribe'}
                   </button>
                 </div>
               </div>
@@ -230,25 +285,54 @@ const Student: React.FC = () => {
           </div>
         )}
 
+        {/* Deuxième section */}
         <div className="mt-5">
-          <h2 className="custom-title">Courses you have subscribed to:</h2>
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h2 className="custom-title">Courses you have subscribed to:</h2>
+            <div className="filter-container d-flex align-items-center">
+              <label className="me-2" style={{ whiteSpace: 'nowrap' }}>
+                Sort by:
+              </label>
+              <select
+                className="form-select"
+                onChange={(e) => handleSubscribedFilterChange(e.target.value)}
+              >
+                <option value="">All</option>
+                {subscribedCategories.map((category, index) => (
+                  <option key={index} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           {currentSubscribedCourses.length === 0 ? (
             <p>You have not subscribed to any courses yet.</p>
           ) : (
             <div className="courses-container">
-              {currentSubscribedCourses.map(course => (
+              {currentSubscribedCourses.map((course) => (
                 <div key={course.id} className="course-card">
                   <div className="course-header">
-                    <h5>{course.title}</h5>
+                    <h5
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => navigate(`/course/${course.id}`)} // Redirection
+                    >
+                      {course.title}
+                    </h5>
                     <span className="category-badge">{course.category.toUpperCase()}</span>
                   </div>
                   <p className="course-description">
                     {truncateDescription(course.description, 20)}
                   </p>
                   <div className="course-info">
-                    <span><FaUser className="me-1 text-primary" /><strong>Professor: {course.professor}</strong></span>
-                    <span><FaClock className="me-1 text-success" />Duration: {course.duration} hours</span>
-                    <span><FaMapMarkerAlt className="me-1 text-danger" />Location: {course.location}</span>
+                    <span>
+                      <FaClock className="me-1 text-success" />
+                      Duration: {course.duration} hours
+                    </span>
+                    <span>
+                      <FaMapMarkerAlt className="me-1 text-danger" />
+                      Location: {course.location}
+                    </span>
                   </div>
                   <div className="d-flex justify-content-end mt-2">
                     <button
@@ -288,7 +372,7 @@ const Student: React.FC = () => {
         </div>
       </div>
 
-      <footer className="footer bg-dark text-white py-3 mt-auto">
+      <footer className="footer bg-dark text-white mt-auto">
         <div className="container text-center">
           <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
         </div>
@@ -297,4 +381,4 @@ const Student: React.FC = () => {
   );
 };
 
-export default Student;
+export default StudentCourses;

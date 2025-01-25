@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './styles/styles.css';
 import Navbar from './components/Navbar';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaBook, FaClock, FaMapMarkerAlt, FaTrash } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { FaBook, FaClock, FaMapMarkerAlt, FaTrash, FaEdit } from 'react-icons/fa';
 
 interface Course {
   id: number;
@@ -13,7 +12,8 @@ interface Course {
   category: string;
   location: string;
   duration: string;
-  studentCount: number; // Nombre d'étudiants souscrits
+  studentCount: number;
+  course_image?: string;
 }
 
 const ProfessorCourses: React.FC = () => {
@@ -62,6 +62,10 @@ const ProfessorCourses: React.FC = () => {
     }
   };
 
+  const handleEditCourse = (courseId: number) => {
+    navigate(`/edit-course/${courseId}`);
+  };
+
   const indexOfLastCourse = currentPage * coursesPerPage;
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
   const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
@@ -101,16 +105,47 @@ const ProfessorCourses: React.FC = () => {
           ) : (
             currentCourses.map((course) => (
               <div key={course.id} className="course-card">
-                <div className="course-header">
-                  {/* Lien pour rediriger vers CourseStudents.tsx */}
-                  <Link
-                    to={`/course/${course.id}/students`}
-                    className="course-title-link"
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    <h5>{course.title}</h5>
-                  </Link>
-                  <span className="category-badge">{course.category.toUpperCase()}</span>
+                <div className="course-header d-flex align-items-center">
+                  {/* Image du cours */}
+                  <img
+                    src={
+                      course.course_image
+                        ? `http://localhost:5000${course.course_image}`
+                        : 'https://via.placeholder.com/100x60'
+                    }
+                    alt="Course"
+                    className="course-image me-3"
+                    style={{
+                      width: '100px',
+                      height: '60px',
+                      objectFit: 'cover',
+                      borderRadius: '5px',
+                      border: '1px solid #ccc',
+                    }}
+                  />
+                  <div>
+                    <Link
+                      to={`/course/${course.id}/students`}
+                      className="course-title-link"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <h5>{course.title}</h5>
+                    </Link>
+                    <span
+                      className="category-badge"
+                      style={{
+                        backgroundColor: '#1abc9c',
+                        color: 'white',
+                        fontSize: '0.8rem',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        display: 'inline-block',
+                        marginTop: '5px',
+                      }}
+                    >
+                      {course.category.toUpperCase()}
+                    </span>
+                  </div>
                 </div>
                 <p className="course-description">
                   {course.description.split(' ').slice(0, 20).join(' ')}...
@@ -131,11 +166,24 @@ const ProfessorCourses: React.FC = () => {
                 </div>
                 <div className="d-flex justify-content-end mt-2">
                   <button
-                    className="btn btn-outline-danger btn-small d-flex align-items-center justify-content-center"
+                    className="btn btn-outline-danger btn-small d-flex align-items-center justify-content-center me-2"
                     onClick={() => handleDeleteCourse(course.id)}
                   >
                     <FaTrash className="me-2" style={{ fontSize: '14px' }} />
                     DELETE
+                  </button>
+                  <button
+                    className="btn d-flex align-items-center justify-content-center "
+                    style={{
+                      backgroundColor: '#f39c12',
+                      color: '#fff',
+                      border: 'none',
+                      fontWeight: 'bold',
+                    }}
+                    onClick={() => handleEditCourse(course.id)}
+                  >
+                    <FaEdit className="me-2 " style={{ fontSize: '14px' }} />
+                    EDIT
                   </button>
                 </div>
               </div>
@@ -166,7 +214,7 @@ const ProfessorCourses: React.FC = () => {
         )}
       </div>
 
-      <footer className="footer bg-dark text-white py-3 mt-auto">
+      <footer className="footer bg-dark text-white mt-auto">
         <div className="container text-center">
           <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
         </div>

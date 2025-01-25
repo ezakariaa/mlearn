@@ -9,6 +9,7 @@ import CourseStudents from './CourseStudents';
 import Course from './Course';
 import EditProfile from './EditProfile'; // Importation de la page EditProfile
 import AddCourse from './AddCourse'; // Importation de la page AddCourse
+import EditCourse from './EditCourse'; // Importation de la page EditCourse
 
 import Navbar from './components/Navbar';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
@@ -77,7 +78,6 @@ const App: React.FC = () => {
             </WrapperWithNavbar>
           }
         />
-        {/* Nouvelle route pour AddCourse */}
         <Route
           path="/add-course"
           element={
@@ -86,18 +86,25 @@ const App: React.FC = () => {
             </WrapperWithNavbar>
           }
         />
-
-        {/* Ajoutez cette route dans vos Routes pour le professeur*/}
+        {/* Nouvelle route pour EditCourse */}
         <Route
-           path="/course/:courseId/students"
-           element={
-           <WrapperWithNavbar>
-            <CourseStudents />
-          </WrapperWithNavbar>
-           }
+          path="/edit-course/:courseId"
+          element={
+            <WrapperWithNavbar>
+              <EditCourse />
+            </WrapperWithNavbar>
+          }
         />
-        
-        {/* Nouvelle route pour Course.tsx */}
+
+        {/* Routes pour les cours */}
+        <Route
+          path="/course/:courseId/students"
+          element={
+            <WrapperWithNavbar>
+              <CourseStudents />
+            </WrapperWithNavbar>
+          }
+        />
         <Route
           path="/student-course/:courseId"
           element={
@@ -106,7 +113,14 @@ const App: React.FC = () => {
             </WrapperWithNavbar>
           }
         />
-
+        <Route
+          path="/course/:courseId"
+          element={
+            <WrapperWithNavbar>
+              <Course />
+            </WrapperWithNavbar>
+          }
+        />
       </Routes>
     </Router>
   );

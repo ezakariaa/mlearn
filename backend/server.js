@@ -13,8 +13,11 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
 // Configuration pour servir les fichiers statiques
 app.use('/avatars', express.static(path.join(__dirname, 'avatars')));
+app.use('/courses', express.static(path.join(__dirname, 'courses')));
+
 
 // Configuration pour le stockage des fichiers
 const storage = multer.diskStorage({
@@ -26,6 +29,32 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage });
+
+// Configuration pour le stockage des fichiers courses
+const courseStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, 'courses')); // Dossier courses
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+const courseUpload = multer({
+  storage: courseStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // Limite de 5 Mo
+  fileFilter: (req, file, cb) => {
+    const fileTypes = /jpeg|jpg|png/;
+    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = fileTypes.test(file.mimetype);
+
+    if (extname && mimetype) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .jpg, .jpeg, and .png files are allowed!'));
+    }
+  },
+});
+
 
 // Connexion à la base de données
 const db = mysql.createConnection({
@@ -269,6 +298,7 @@ app.get('/api/professor/:id/courses', (req, res) => {
       c.category, 
       c.location, 
       c.duration, 
+      c.course_image, 
       (SELECT COUNT(*) FROM course_students WHERE course_id = c.id) AS studentCount
     FROM courses c
     WHERE c.professor_id = ?
@@ -313,20 +343,21 @@ app.delete('/api/course_students/:student_id/:course_id', (req, res) => {
   });
 });
 
-// Route pour ajouter un nouveau cours
-app.post('/api/courses', (req, res) => {
+// Route pour ajouter un nouveau cours avec une image
+app.post('/api/courses', courseUpload.single('course_image'), (req, res) => {
   const { title, description, category, location, duration, professor_id } = req.body;
+  const course_image = req.file ? `/courses/${req.file.filename}` : null; // Stocker le chemin de l'image
 
   if (!title || !description || !category || !location || !duration || !professor_id) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
 
   const query = `
-    INSERT INTO courses (title, description, category, location, duration, professor_id)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO courses (title, description, category, location, duration, professor_id, course_image)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
-  db.query(query, [title, description, category, location, duration, professor_id], (err, results) => {
+  db.query(query, [title, description, category, location, duration, professor_id, course_image], (err, results) => {
     if (err) {
       console.error('Error adding course:', err);
       return res.status(500).json({ message: 'Failed to add the course.' });
@@ -437,6 +468,44 @@ app.get('/api/courses/:courseId', (req, res) => {
     }
 
     res.status(200).json(results[0]);
+  });
+});
+
+// Route pour mettre à jour un cours
+app.put('/api/courses/:id', courseUpload.single('course_image'), (req, res) => {
+  const courseId = req.params.id;
+  const { title, description, category, location, duration } = req.body;
+  const course_image = req.file ? `/courses/${req.file.filename}` : null; // Image optionnelle
+
+  if (!title || !description || !category || !location || !duration) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  const updateQuery = `
+    UPDATE courses
+    SET 
+      title = ?,
+      description = ?,
+      category = ?,
+      location = ?,
+      duration = ?,
+      course_image = ?
+    WHERE id = ?
+  `;
+
+  const values = [title, description, category, location, duration, course_image, courseId];
+
+  db.query(updateQuery, values, (err, result) => {
+    if (err) {
+      console.error('Error updating course:', err);
+      return res.status(500).json({ message: 'Failed to update the course.' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Course not found.' });
+    }
+
+    res.status(200).json({ message: 'Course updated successfully.' });
   });
 });
 

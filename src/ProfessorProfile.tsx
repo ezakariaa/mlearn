@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import { FaEdit } from 'react-icons/fa';
-import { BsPerson, BsStar, BsEnvelope, BsTelephone, BsBook } from 'react-icons/bs';
+import { BsPerson, BsStar, BsEnvelope, BsTelephone, BsBookFill, BsTelephoneFill, BsEnvelopeFill, BsPersonFill, BsStarFill } from 'react-icons/bs';
 import { useNavigate } from 'react-router-dom';
 
 interface ProfessorProfileData {
@@ -15,10 +15,10 @@ interface ProfessorProfileData {
   profile_picture: string;
   presentation: string;
   interests: string;
-  subscribed_courses?: SubscribedCourse[];
+  proposed_courses?: ProposedCourse[];
 }
 
-interface SubscribedCourse {
+interface ProposedCourse {
   id: number;
   title: string;
   description: string;
@@ -50,12 +50,12 @@ const ProfessorProfile: React.FC = () => {
         const profileData = response.data;
         setProfile(profileData);
 
-        // Fetch subscribed courses
-        const coursesResponse = await axios.get<SubscribedCourse[]>(
-          `http://localhost:5000/api/student/${profileData.id}/subscribed-courses`
+        // Fetch proposed courses
+        const coursesResponse = await axios.get<ProposedCourse[]>(
+          `http://localhost:5000/api/professor/${profileData.id}/courses`
         );
         setProfile((prevProfile) =>
-          prevProfile ? { ...prevProfile, subscribed_courses: coursesResponse.data } : null
+          prevProfile ? { ...prevProfile, proposed_courses: coursesResponse.data } : null
         );
       } catch (error) {
         setErrorMessage('Erreur lors du chargement des données utilisateur.');
@@ -94,18 +94,18 @@ const ProfessorProfile: React.FC = () => {
               className="rounded-circle border border-primary mb-3"
               style={{ width: '120px', height: '120px', objectFit: 'cover' }}
             />
-            <h4 className="mt-2" style={{ fontSize: '1.2rem' }}>{profile.name}</h4>
+            <h4 className="mt-2" style={{ fontSize: '1.5rem' }}>{profile.name}</h4>
             <p className="text-muted" style={{ fontSize: '0.9rem' }}>
               {profile.city}, {profile.country}
             </p>
             <p style={{ fontSize: '0.9rem' }}>
-              <strong>Profil:</strong> Professor
+              <strong>Profil: </strong> Professor
             </p>
             <p style={{ fontSize: '0.9rem' }}>
-              <BsTelephone className="me-1" /> {profile.phone}
+              <BsTelephoneFill className="me-1" /> {profile.phone}
             </p>
             <p style={{ fontSize: '0.9rem' }}>
-              <BsEnvelope className="me-1" /> {profile.email}
+              <BsEnvelopeFill className="me-1" /> {profile.email}
             </p>
             <button
               className="btn btn-primary mt-2"
@@ -119,42 +119,52 @@ const ProfessorProfile: React.FC = () => {
           <div className="col-md-8">
             <div className="row gx-5">
               <div className="col-md-6">
-                <h5 className="text-primary" style={{ fontSize: '1rem' }}>
-                  <BsPerson className="me-1" /> Présentation :
-                </h5>
-                <p className="mt-4" style={{ fontSize: '0.9rem' }}>{profile.presentation ? profile.presentation : 'Aucune présentation disponible.'}</p>
-                <h6 className="mt-3 text-primary" style={{ fontSize: '1rem' }}>
-                  <BsStar className="me-1" /> Interests :
-                </h6>
-                <ul className="list-disc" style={{ fontSize: '0.9rem', listStyleType: 'disc', paddingLeft: '20px' }}>
-                  {profile.interests ? (
-                    profile.interests.split(',').map((interest, index) => (
-                      <li key={index}>{interest.trim()}</li>
-                    ))
-                  ) : (
-                    <li>Aucun centre d'intérêt disponible.</li>
-                  )}
-                </ul>
-              </div>
+  <h5 className="text-primary" style={{ fontSize: '1.2rem' }}>
+    <BsPersonFill className="me-1" /> Présentation :
+  </h5>
+  <p
+    className="mt-2"
+    style={{ fontSize: '0.9rem', whiteSpace: 'pre-wrap' }}
+  >
+    {profile.presentation ? profile.presentation : 'Aucune présentation disponible.'}
+  </p>
+  <h6 className="mt-3 text-primary" style={{ fontSize: '1.2rem' }}>
+    <BsStarFill className="me-1" /> Interests :
+  </h6>
+  <ul className="list-disc" style={{ fontSize: '0.9rem', listStyleType: 'disc', paddingLeft: '20px' }}>
+    {profile.interests ? (
+      profile.interests.split(',').map((interest, index) => (
+        <li key={index}>{interest.trim()}</li>
+      ))
+    ) : (
+      <li>Aucun centre d'intérêt disponible.</li>
+    )}
+  </ul>
+</div>
 
               <div className="col-md-6">
-                <h5 className="text-primary" style={{ fontSize: '1rem' }}>
-                  <BsStar className="me-1" /> Derniers Cours Souscrits :
+                <h5 className="text-primary " style={{ fontSize: '1.2rem' }}>
+                   Last Proposed Courses:
                 </h5>
                 <ul className="list-unstyled" style={{ fontSize: '0.9rem' }}>
-                  {profile.subscribed_courses && profile.subscribed_courses.length > 0 ? (
-                    profile.subscribed_courses.slice(0, 5).map((course) => (
-                      <li key={course.id} className="mb-2 d-flex align-items-start">
-                        <BsBook className="me-2 text-primary" />
-                        <div>
+                  {profile.proposed_courses && profile.proposed_courses.length > 0 ? (
+                    profile.proposed_courses.slice(0, 6).map((course) => (
+                      <li key={course.id} className="mb-2">
+                        <div className="d-flex align-items-center">
+                          <BsBookFill className="text-warning me-2" />
                           <h6 style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{course.title}</h6>
-                          <p style={{ fontSize: '0.8rem', marginBottom: '0' }}>{course.description}</p>
-                          <p style={{ fontSize: '0.8rem', color: 'gray' }}>{course.category} - {course.location}</p>
                         </div>
+                        <p style={{ fontSize: '0.8rem', marginBottom: '0' }}>
+                          {course.description.split(' ').slice(0, 22).join(' ')}...
+                        </p>
+                        <p style={{ fontSize: '0.8rem', color: 'gray' }}>
+                          {course.category} - {course.location}
+                        </p>
+                        <hr className="my-2" />
                       </li>
                     ))
                   ) : (
-                    <li>Aucun cours souscrit.</li>
+                    <li>No proposed courses available.</li>
                   )}
                 </ul>
               </div>
