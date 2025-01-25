@@ -81,6 +81,40 @@ app.post('/api/login', (req, res) => {
   });
 });
 
+// Route pour l'inscription d'un nouvel utilisateur
+app.post('/api/subscribe', (req, res) => {
+  const { email, password, role } = req.body;
+
+  if (!email || !password || !role) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  // Vérifiez si l'email existe déjà
+  const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
+  db.query(checkEmailQuery, [email], (err, results) => {
+    if (err) {
+      console.error('Error checking email:', err);
+      return res.status(500).json({ message: 'Server error.' });
+    }
+
+    if (results.length > 0) {
+      return res.status(409).json({ message: 'Email already exists.' });
+    }
+
+    // Ajoutez l'utilisateur à la base de données
+    const insertQuery = 'INSERT INTO users (email, password, role) VALUES (?, ?, ?)';
+    db.query(insertQuery, [email, password, role], (err) => {
+      if (err) {
+        console.error('Error subscribing user:', err);
+        return res.status(500).json({ message: 'Server error.' });
+      }
+
+      return res.status(201).json({ message: 'User successfully subscribed.' });
+    });
+  });
+});
+
+
 // Route pour récupérer le profil utilisateur par email
 app.get('/api/users/profile', (req, res) => {
   const email = req.query.email;
@@ -361,6 +395,25 @@ app.get('/api/course/:id/students', (req, res) => {
   });
 });
 
+// Route pour supprimer un étudiant souscrit à un cours
+app.delete('/api/course/:courseId/students/:studentId', (req, res) => {
+  const { courseId, studentId } = req.params;
+
+  const deleteQuery = 'DELETE FROM course_students WHERE course_id = ? AND student_id = ?';
+
+  db.query(deleteQuery, [courseId, studentId], (err, results) => {
+    if (err) {
+      console.error('Error deleting student from course:', err);
+      return res.status(500).json({ message: 'Error deleting student from course.' });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: 'Student not found in the course.' });
+    }
+
+    return res.status(200).json({ message: 'Student successfully removed from the course.' });
+  });
+});
 
 // Gestion des routes non trouvées
 app.use((req, res) => {

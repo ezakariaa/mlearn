@@ -49,7 +49,7 @@ const Home: React.FC = () => {
       localStorage.setItem('role', user.role); // Stocke le rôle
       localStorage.setItem('email', user.email); // Stocke l'email
 
-      console.log("User successfully logged in:", user); // Log pour le débogage
+      console.log('User successfully logged in:', user); // Log pour le débogage
 
       // Redirection vers la page appropriée
       if (role === 'Student') {
@@ -68,6 +68,34 @@ const Home: React.FC = () => {
       }
       setIsError(true);
       console.error('Login Error:', error); // Log de l'erreur pour le débogage
+    }
+  };
+
+  // Fonction pour gérer l'inscription
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/subscribe', {
+        email,
+        password,
+        role,
+      });
+
+      setMessage('User successfully subscribed.');
+      setIsError(false);
+      console.log('User successfully subscribed:', response.data);
+    } catch (error) {
+      const err = error as any;
+      if (err.response?.status === 409) {
+        setMessage('Email déjà existant.');
+      } else {
+        setMessage('An error occurred while subscribing. Please try again.');
+      }
+      setIsError(true);
+      console.error('Subscribe Error:', error);
     }
   };
 
@@ -147,6 +175,13 @@ const Home: React.FC = () => {
                 onClick={handleLogin}
               >
                 Log in
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary w-100"
+                onClick={handleSubscribe}
+              >
+                Subscribe
               </button>
             </div>
             {/* Message d'erreur ou de succès */}

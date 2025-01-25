@@ -101,6 +101,14 @@ const Student: React.FC = () => {
     }
   };
 
+  const truncateDescription = (description: string, wordLimit: number): string => {
+    const words = description.split(' ');
+    if (words.length > wordLimit) {
+      return words.slice(0, wordLimit).join(' ') + '...';
+    }
+    return description;
+  };
+
   const indexOfLastCourse = currentPage * coursesPerPage;
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
   const currentCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
@@ -177,10 +185,12 @@ const Student: React.FC = () => {
                   <h5>{course.title}</h5>
                   <span className="category-badge">{course.category.toUpperCase()}</span>
                 </div>
-                <p className="course-description">{course.description}</p>
+                <p className="course-description">
+                  {truncateDescription(course.description, 20)}
+                </p>
                 <div className="course-info">
                   <span><FaUser className="me-1 text-primary" /><strong>Professor: {course.professor}</strong></span>
-                  <span><FaClock className="me-1 text-success" />Duration: {course.duration}</span>
+                  <span><FaClock className="me-1 text-success" />Duration: {course.duration} hours</span>
                   <span><FaMapMarkerAlt className="me-1 text-danger" />Location: {course.location}</span>
                 </div>
                 <div className="d-flex justify-content-end mt-2">
@@ -232,10 +242,12 @@ const Student: React.FC = () => {
                     <h5>{course.title}</h5>
                     <span className="category-badge">{course.category.toUpperCase()}</span>
                   </div>
-                  <p className="course-description">{course.description}</p>
+                  <p className="course-description">
+                    {truncateDescription(course.description, 20)}
+                  </p>
                   <div className="course-info">
                     <span><FaUser className="me-1 text-primary" /><strong>Professor: {course.professor}</strong></span>
-                    <span><FaClock className="me-1 text-success" />Duration: {course.duration}</span>
+                    <span><FaClock className="me-1 text-success" />Duration: {course.duration} hours</span>
                     <span><FaMapMarkerAlt className="me-1 text-danger" />Location: {course.location}</span>
                   </div>
                   <div className="d-flex justify-content-end mt-2">
