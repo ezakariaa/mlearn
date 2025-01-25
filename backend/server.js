@@ -415,6 +415,31 @@ app.delete('/api/course/:courseId/students/:studentId', (req, res) => {
   });
 });
 
+// récupérer les détails du cours par un student :
+app.get('/api/courses/:courseId', (req, res) => {
+  const courseId = req.params.courseId;
+
+  const query = `
+    SELECT c.*, u.name AS professor
+    FROM courses c
+    JOIN users u ON c.professor_id = u.id
+    WHERE c.id = ?
+  `;
+
+  db.query(query, [courseId], (err, results) => {
+    if (err) {
+      console.error('Error fetching course details:', err);
+      return res.status(500).json({ message: 'Server error.' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Course not found.' });
+    }
+
+    res.status(200).json(results[0]);
+  });
+});
+
 // Gestion des routes non trouvées
 app.use((req, res) => {
   res.status(404).json({ message: 'Route introuvable.' });

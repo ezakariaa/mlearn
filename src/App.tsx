@@ -6,6 +6,7 @@ import Professor from './ProfessorCourses';
 import StudentProfile from './StudentProfile';
 import Student from './StudentCourses';
 import CourseStudents from './CourseStudents';
+import Course from './Course';
 import EditProfile from './EditProfile'; // Importation de la page EditProfile
 import AddCourse from './AddCourse'; // Importation de la page AddCourse
 
@@ -93,9 +94,19 @@ const App: React.FC = () => {
            <WrapperWithNavbar>
             <CourseStudents />
           </WrapperWithNavbar>
-  }
-/>
+           }
+        />
         
+        {/* Nouvelle route pour Course.tsx */}
+        <Route
+          path="/student-course/:courseId"
+          element={
+            <WrapperWithNavbar>
+              <Course />
+            </WrapperWithNavbar>
+          }
+        />
+
       </Routes>
     </Router>
   );
