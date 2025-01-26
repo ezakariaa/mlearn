@@ -1,3 +1,70 @@
+
+# MLearn
+
+Bridging Students and Educators Through Personalized Learning
+
+## 📖 Overview
+
+The platform connects students with the perfect teacher, enabling them to find personalized lessons based on their preferences and schedule while managing the training fees. On the other hand, teachers can register their courses, set prices, and offer their services in a structured and accessible way.
+
+## ✨ Features
+
+**For Students:**
+- Personalized Discovery: Browse courses filtered by category, duration, or location.
+
+- Course Enrollment: Subscribe to courses and track progress.
+
+- Certification: Download certifications upon course completion.
+
+- Profile Management: Update personal details, interests, and view subscribed courses.
+
+**For Educators:**
+- Course Management: Create, edit, or delete courses with customizable details (title, description, pricing).
+
+- Student Engagement: Manage enrolled students and issue certifications.
+
+- Analytics: Monitor course popularity via enrollment statistics.
+
+## 🛠 Tech Stack
+
+**Frontend:** HTML, CSS, React
+
+**Backend:** React / Typescript
+
+**Database:** MySQL (via phpMyAdmin).
+
+**Hosting:** Local
+
+
+## 📷 Screenshots
+
+![Profile](https://github.com/ezakariaa/mlearn/blob/a60fa50c5aeb00bb4bc7866db4bee4acb87a313b/02-Profile.png)
+
+![List of Courses](https://github.com/ezakariaa/mlearn/blob/a60fa50c5aeb00bb4bc7866db4bee4acb87a313b/04-ListCourses.png)
+
+![Course Details](https://github.com/ezakariaa/mlearn/blob/a60fa50c5aeb00bb4bc7866db4bee4acb87a313b/05-DetailCourse.png)
+
+
+## 🤝 Contributing
+
+Contributions are always welcome!
+
+See `contributing.md` for ways to get started.
+
+Please adhere to the project's coding standards and document major changes.
+
+
+## 📜 License
+
+This project is licensed under the MIT License. See [license](https://choosealicense.com/licenses/mit/) for details.
+
+
+## 👨🏻‍💻 Authors
+
+- [Zakaria EL ORCHE](https://github.com/ezakariaa)
+
+- [Badreddine Toumani](https://github.com/Badrdineyk)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
