@@ -266,7 +266,7 @@ app.get('/api/student/:id/subscribed-courses', (req, res) => {
   }
 
   const query = `
-    SELECT c.id, c.title, c.description, c.category, c.professor_id, c.location, c.duration
+    SELECT c.id, c.title, c.description, c.category, c.professor_id, c.location, c.duration, c.course_image
     FROM course_students sc
     JOIN courses c ON sc.course_id = c.id
     WHERE sc.student_id = ?

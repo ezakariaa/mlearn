@@ -3,13 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import { FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import {
-  BsPersonFill,
-  BsStarFill,
-  BsEnvelopeFill,
-  BsTelephoneFill,
-  BsBookmarkCheck,
-} from 'react-icons/bs';
+import { BsPersonFill, BsStarFill, BsEnvelopeFill, BsTelephoneFill } from 'react-icons/bs';
 
 interface StudentProfileData {
   id: number;
@@ -31,6 +25,7 @@ interface SubscribedCourse {
   category: string;
   location: string;
   duration: string;
+  course_image?: string;
 }
 
 const StudentProfile: React.FC = () => {
@@ -91,146 +86,140 @@ const StudentProfile: React.FC = () => {
   }
 
   return (
-    <>
-      <div className="container mt-5 mb-auto">
-        <div className="row">
-          <div className="col-md-4 text-center">
-            <img
-              src={
-                profile.profile_picture
-                  ? `http://localhost:5000${profile.profile_picture}`
-                  : 'https://via.placeholder.com/150'
-              }
-              alt="Profile"
-              className="rounded-circle border border-primary mb-3"
-              style={{ width: '120px', height: '120px', objectFit: 'cover' }}
-            />
-            <h4 className="mt-2" style={{ fontSize: '1.2rem' }}>
-              {profile.name}
-            </h4>
-            <p className="text-muted" style={{ fontSize: '0.9rem' }}>
-              {profile.city}, {profile.country}
-            </p>
-            <p style={{ fontSize: '0.9rem' }}>
-              <strong>Profil:</strong> Étudiant
-            </p>
-            <p style={{ fontSize: '0.9rem' }}>
-              <BsTelephoneFill className="me-1" /> {profile.phone}
-            </p>
-            <p style={{ fontSize: '0.9rem' }}>
-              <BsEnvelopeFill className="me-1" /> {profile.email}
-            </p>
-            <button
-              className="btn btn-primary mt-2"
-              onClick={() => navigate('/edit-profile')}
-              style={{ fontSize: '0.8rem' }}
-            >
-              <FaEdit className="me-1" /> Modifier
-            </button>
-          </div>
+    <div className="container mt-5 mb-auto">
+      <div className="row">
+        {/* Colonne gauche : Informations utilisateur */}
+        <div className="col-md-4 text-center">
+          <img
+            src={
+              profile.profile_picture
+                ? `http://localhost:5000${profile.profile_picture}`
+                : 'https://via.placeholder.com/150'
+            }
+            alt="Profile"
+            className="rounded-circle border border-primary mb-3"
+            style={{ width: '120px', height: '120px', objectFit: 'cover' }}
+          />
+          <h4 className="mt-2" style={{ fontSize: '1.5rem' }}>
+            {profile.name}
+          </h4>
+          <p className="text-muted" style={{ fontSize: '0.9rem' }}>
+            {profile.city}, {profile.country}
+          </p>
+          <p style={{ fontSize: '0.9rem' }}>
+            <strong>Profil:</strong> Étudiant
+          </p>
+          <p style={{ fontSize: '0.9rem' }}>
+            <BsTelephoneFill className="me-1" /> {profile.phone}
+          </p>
+          <p style={{ fontSize: '0.9rem' }}>
+            <BsEnvelopeFill className="me-1" /> {profile.email}
+          </p>
+          <button
+            className="btn btn-primary mt-2"
+            onClick={() => navigate('/edit-profile')}
+            style={{ fontSize: '0.8rem' }}
+          >
+            <FaEdit className="me-1" /> Edit Profile
+          </button>
+        </div>
 
-          <div className="col-md-8">
-            <div className="row gx-5">
-              <div className="col-md-6">
-                <h5 className="text-primary" style={{ fontSize: '1rem' }}>
-                  <BsPersonFill className="me-1" /> Présentation :
-                </h5>
-                <p style={{ fontSize: '0.9rem' }}>
-                  {profile.presentation || 'Aucune présentation disponible.'}
-                </p>
-                <h5
-                  className="text-primary mt-3"
-                  style={{ fontSize: '1rem' }}
-                >
-                  <BsStarFill className="me-1" /> Interests :
-                </h5>
-                <ul
-                  className="list-disc"
-                  style={{
-                    fontSize: '0.9rem',
-                    listStyleType: 'disc',
-                    paddingLeft: '20px',
-                  }}
-                >
-                  {profile.interests
-                    ? profile.interests.split(',').map((interest, index) => (
-                        <li key={index}>{interest.trim()}</li>
-                      ))
-                    : (
-                      <li>Aucun centre d'intérêt disponible.</li>
-                    )}
-                </ul>
-              </div>
+        {/* Colonne centrale : Présentation et centres d'intérêt */}
+        <div className="col-md-4">
+          <h5 className="text-primary" style={{ fontSize: '1.2rem' }}>
+            <BsPersonFill className="me-1" /> Presentation :
+          </h5>
+          <p
+            style={{
+              fontSize: '1rem',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {profile.presentation || 'Aucune présentation disponible.'}
+          </p>
+          <h5 className="text-primary mt-4" style={{ fontSize: '1.2rem' }}>
+            <BsStarFill className="me-1" /> Interests :
+          </h5>
+          <ul
+            className="list-disc"
+            style={{
+              fontSize: '1rem',
+              listStyleType: 'disc',
+              paddingLeft: '20px',
+            }}
+          >
+            {profile.interests
+              ? profile.interests.split(',').map((interest, index) => (
+                  <li key={index}>{interest.trim()}</li>
+                ))
+              : (
+                <li>No interests available.</li>
+              )}
+          </ul>
+        </div>
 
-              <div className="col-md-6">
-                <h5
-                  className="text-primary"
-                  style={{ fontSize: '1rem', marginBottom: '1rem' }}
-                >
-                  <BsStarFill className="me-1" /> Derniers Cours Souscrits :
-                </h5>
-                <ul className="list-unstyled" style={{ fontSize: '0.9rem' }}>
-                  {profile.subscribed_courses &&
-                  profile.subscribed_courses.length > 0 ? (
-                    profile.subscribed_courses.slice(0, 10).map((course, index) => (
-                      <>
-                        {index > 0 && (
-                          <hr
-                            style={{
-                              borderTop: '1px solid #ccc',
-                              margin: '10px 0',
-                            }}
-                          />
-                        )}
-                        <li
-                          key={course.id}
-                          className="mb-2 d-flex align-items-start"
-                          style={{ cursor: 'pointer' }}
-                          onClick={() =>
-                            navigate(`/student-course/${course.id}`)
-                          }
-                        >
-                          <BsBookmarkCheck className="me-2 text-primary" />
-                          <div>
-                            <h6
-                              style={{
-                                fontSize: '0.9rem',
-                                fontWeight: 'bold',
-                              }}
-                            >
-                              {course.title}
-                            </h6>
-                            <p
-                              style={{
-                                fontSize: '0.8rem',
-                                marginBottom: '0',
-                              }}
-                            >
-                              {course.description
-                                .split(' ')
-                                .slice(0, 20)
-                                .join(' ')}
-                              ...
-                            </p>
-                            <p
-                              style={{
-                                fontSize: '0.8rem',
-                                color: 'gray',
-                              }}
-                            >
-                              {course.category} - {course.location}
-                            </p>
-                          </div>
-                        </li>
-                      </>
-                    ))
-                  ) : (
-                    <li>Aucun cours souscrit.</li>
-                  )}
-                </ul>
-              </div>
-            </div>
-          </div>
+        {/* Colonne droite : Derniers cours souscrits */}
+        <div className="col-md-4">
+          <h5
+            className="text-primary"
+            style={{ fontSize: '1.2rem', marginBottom: '1rem' }}
+          >
+            Latest Courses Subscribed:
+          </h5>
+          <ul className="list-unstyled">
+            {profile.subscribed_courses &&
+            profile.subscribed_courses.length > 0 ? (
+              profile.subscribed_courses.slice(0, 5).map((course) => (
+                <li key={course.id} className="mb-3 d-flex align-items-start">
+                  <img
+                    src={
+                      course.course_image
+                        ? `http://localhost:5000${course.course_image}`
+                        : 'https://via.placeholder.com/60'
+                    }
+                    alt={course.title}
+                    style={{
+                      width: '60px',
+                      height: '80px',
+                      objectFit: 'cover',
+                      borderRadius: '5px',
+                      marginRight: '15px',
+                    }}
+                  />
+                  <div>
+                    <h6
+                      style={{
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {course.title}
+                    </h6>
+                    <p
+                      style={{
+                        fontSize: '0.8rem',
+                        marginBottom: '0.5rem',
+                      }}
+                    >
+                      {course.description.split(' ').slice(0, 20).join(' ')}...
+                    </p>
+                    <p
+                      style={{
+                        fontSize: '0.8rem',
+                        color: 'gray',
+                      }}
+                    >
+                      {course.category} - {course.location}
+                    </p>
+                    <hr className="my-2" />
+                  </div>
+                  
+                </li>
+              ))
+            ) : (
+              <p>No courses subscribed.</p>
+            )}
+          </ul>
         </div>
       </div>
       <footer className="footer bg-dark text-white py-2 mt-3 text-center rounded">
@@ -238,7 +227,7 @@ const StudentProfile: React.FC = () => {
           &copy; Zakaria ELORCHE & Badr Toumani - ALX Project
         </p>
       </footer>
-    </>
+    </div>
   );
 };
 

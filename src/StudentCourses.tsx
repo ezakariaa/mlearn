@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './styles/styles.css';
 import Navbar from './components/Navbar'; // Navbar intégrée
 import axios from 'axios';
-import { FaBook, FaTrash, FaUser, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaBook, FaTrash, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 interface Course {
@@ -10,10 +10,9 @@ interface Course {
   title: string;
   description: string;
   category: string;
-  professor_id: number;
   location: string;
   duration: string;
-  professor?: string; // Nom du professeur (optionnel)
+  course_image?: string; // Chemin de l'image du cours
 }
 
 const StudentCourses: React.FC = () => {
@@ -30,7 +29,6 @@ const StudentCourses: React.FC = () => {
   const coursesPerPage = 6;
   const subscribedPerPage = 6;
 
-  const userEmail = localStorage.getItem('email') || 'Non identifié';
   const studentId = localStorage.getItem('userId');
   const navigate = useNavigate();
 
@@ -53,31 +51,10 @@ const StudentCourses: React.FC = () => {
         const response = await axios.get<Course[]>(
           `http://localhost:5000/api/student/${studentId}/subscribed-courses`
         );
-
-        const subscribedCoursesWithProfessors = await Promise.all(
-          response.data.map(async (course) => {
-            try {
-              const professorResponse = await axios.get(
-                `http://localhost:5000/api/professor/${course.professor_id}`
-              );
-              return {
-                ...course,
-                professor: professorResponse.data.name,
-              };
-            } catch (error) {
-              console.error(`Error fetching professor for course ID ${course.id}:`, error);
-              return {
-                ...course,
-                professor: 'Unknown',
-              };
-            }
-          })
-        );
-
-        setSubscribedCourseDetails(subscribedCoursesWithProfessors);
-        setSubscribedCourses(subscribedCoursesWithProfessors.map((course) => course.id));
+        setSubscribedCourseDetails(response.data || []);
+        setSubscribedCourses(response.data.map((course) => course.id));
         const uniqueSubscribedCategories = Array.from(
-          new Set(subscribedCoursesWithProfessors.map((course) => course.category))
+          new Set(response.data.map((course) => course.category))
         );
         setSubscribedCategories(uniqueSubscribedCategories);
       } catch (error) {
@@ -104,12 +81,12 @@ const StudentCourses: React.FC = () => {
       }
     } catch (error) {
       console.error('Error subscribing to course:', error);
-      alert('Erreur lors de l\'inscription. Veuillez réessayer.');
+      alert('Failed to subscribe. Please try again.');
     }
   };
 
   const handleDeleteSubscription = async (courseId: number) => {
-    const confirmDelete = window.confirm('Êtes-vous sûr de vouloir supprimer ce cours ?');
+    const confirmDelete = window.confirm('Are you sure you want to unsubscribe from this course?');
     if (!confirmDelete) return;
 
     try {
@@ -118,7 +95,7 @@ const StudentCourses: React.FC = () => {
       setSubscribedCourseDetails((prev) => prev.filter((course) => course.id !== courseId));
     } catch (error) {
       console.error('Error deleting subscription:', error);
-      alert('Erreur lors de la suppression. Veuillez réessayer.');
+      alert('Failed to unsubscribe. Please try again.');
     }
   };
 
@@ -190,16 +167,13 @@ const StudentCourses: React.FC = () => {
   };
 
   return (
-    <div className="student-page d-flex flex-column min-vh-100">
-
+    <div className="student-courses-page d-flex flex-column min-vh-100">
       <div className="container mt-3 pt-3">
-        {/* Première section */}
+        {/* Browse Available Courses */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="custom-title">Browse Available Courses</h2>
           <div className="filter-container d-flex align-items-center">
-            <label className="me-2" style={{ whiteSpace: 'nowrap' }}>
-              Sort by:
-            </label>
+            <label className="me-2">Sort by:</label>
             <select
               className="form-select"
               onChange={(e) => handleFilterChange(e.target.value)}
@@ -213,57 +187,63 @@ const StudentCourses: React.FC = () => {
             </select>
           </div>
         </div>
-
         {message && <p className="text-danger text-left">{message}</p>}
-
         <div className="courses-container">
-          {currentCourses.length === 0 ? (
-            <p className="text-left">No courses available for the selected category.</p>
-          ) : (
-            currentCourses.map((course) => (
-              <div key={course.id} className="course-card">
-                <div className="course-header">
+          {currentCourses.map((course) => (
+            <div key={course.id} className="course-card">
+              <div className="course-header d-flex align-items-start">
+                <img
+                  src={
+                    course.course_image
+                      ? `http://localhost:5000${course.course_image}`
+                      : 'https://via.placeholder.com/100'
+                  }
+                  alt="Course"
+                  style={{
+                    width: '100px',
+                    height: '60px',
+                    objectFit: 'cover',
+                    borderRadius: '5px',
+                    marginRight: '15px',
+                  }}
+                />
+                <div>
                   <h5
                     style={{ cursor: 'pointer' }}
-                    onClick={() => navigate(`/course/${course.id}`)} // Redirection
+                    onClick={() => navigate(`/course/${course.id}`)}
                   >
                     {course.title}
                   </h5>
                   <span className="category-badge">{course.category.toUpperCase()}</span>
                 </div>
-                <p className="course-description">
-                  {truncateDescription(course.description, 20)}
-                </p>
-                <div className="course-info">
-                  <span>
-                    <FaUser className="me-1 text-primary" />
-                    <strong>Professor: {course.professor || 'Unknown'}</strong>
-                  </span>
-                  <span>
-                    <FaClock className="me-1 text-success" />
-                    Duration: {course.duration} hours
-                  </span>
-                  <span>
-                    <FaMapMarkerAlt className="me-1 text-danger" />
-                    Location: {course.location}
-                  </span>
-                </div>
-                <div className="d-flex justify-content-end mt-2">
-                  <button
-                    className="btn btn-outline-primary d-flex align-items-center"
-                    onClick={() => handleSubscribe(course.id)}
-                    disabled={subscribedCourses.includes(course.id)}
-                  >
-                    <FaBook className="me-2" />
-                    {subscribedCourses.includes(course.id) ? 'Subscribed' : 'Subscribe'}
-                  </button>
-                </div>
               </div>
-            ))
-          )}
+              <p className="course-description">
+                {truncateDescription(course.description, 20)}
+              </p>
+              <div className="course-info">
+                <span>
+                  <FaClock className="me-1 text-success" />
+                  Duration: {course.duration} hours
+                </span>
+                <span>
+                  <FaMapMarkerAlt className="me-1 text-danger" />
+                  Location: {course.location}
+                </span>
+              </div>
+              <div className="d-flex justify-content-end mt-2">
+                <button
+                  className="btn btn-outline-primary"
+                  onClick={() => handleSubscribe(course.id)}
+                  disabled={subscribedCourses.includes(course.id)}
+                >
+                  <FaBook className="me-2" />
+                  {subscribedCourses.includes(course.id) ? 'Subscribed' : 'Subscribe'}
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-
-        {filteredCourses.length > coursesPerPage && (
+        {totalPages > 1 && (
           <div className="pagination-container d-flex justify-content-between align-items-center mt-4">
             <button
               className="btn btn-outline-primary"
@@ -285,14 +265,12 @@ const StudentCourses: React.FC = () => {
           </div>
         )}
 
-        {/* Deuxième section */}
+        {/* Courses you have subscribed to */}
         <div className="mt-5">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h2 className="custom-title">Courses you have subscribed to:</h2>
             <div className="filter-container d-flex align-items-center">
-              <label className="me-2" style={{ whiteSpace: 'nowrap' }}>
-                Sort by:
-              </label>
+              <label className="me-2">Sort by:</label>
               <select
                 className="form-select"
                 onChange={(e) => handleSubscribedFilterChange(e.target.value)}
@@ -306,49 +284,61 @@ const StudentCourses: React.FC = () => {
               </select>
             </div>
           </div>
-          {currentSubscribedCourses.length === 0 ? (
-            <p>You have not subscribed to any courses yet.</p>
-          ) : (
-            <div className="courses-container">
-              {currentSubscribedCourses.map((course) => (
-                <div key={course.id} className="course-card">
-                  <div className="course-header">
+          <div className="courses-container">
+            {currentSubscribedCourses.map((course) => (
+              <div key={course.id} className="course-card">
+                <div className="course-header d-flex align-items-start">
+                  <img
+                    src={
+                      course.course_image
+                        ? `http://localhost:5000${course.course_image}`
+                        : 'https://via.placeholder.com/100'
+                    }
+                    alt="Course"
+                    style={{
+                      width: '100px',
+                      height: '60px',
+                      objectFit: 'cover',
+                      borderRadius: '5px',
+                      marginRight: '15px',
+                    }}
+                  />
+                  <div>
                     <h5
                       style={{ cursor: 'pointer' }}
-                      onClick={() => navigate(`/course/${course.id}`)} // Redirection
+                      onClick={() => navigate(`/course/${course.id}`)}
                     >
                       {course.title}
                     </h5>
                     <span className="category-badge">{course.category.toUpperCase()}</span>
                   </div>
-                  <p className="course-description">
-                    {truncateDescription(course.description, 20)}
-                  </p>
-                  <div className="course-info">
-                    <span>
-                      <FaClock className="me-1 text-success" />
-                      Duration: {course.duration} hours
-                    </span>
-                    <span>
-                      <FaMapMarkerAlt className="me-1 text-danger" />
-                      Location: {course.location}
-                    </span>
-                  </div>
-                  <div className="d-flex justify-content-end mt-2">
-                    <button
-                      className="btn btn-outline-danger d-flex align-items-center"
-                      onClick={() => handleDeleteSubscription(course.id)}
-                    >
-                      <FaTrash className="me-2" />
-                      Delete
-                    </button>
-                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {subscribedCourseDetails.length > subscribedPerPage && (
+                <p className="course-description">
+                  {truncateDescription(course.description, 20)}
+                </p>
+                <div className="course-info">
+                  <span>
+                    <FaClock className="me-1 text-success" />
+                    Duration: {course.duration} hours
+                  </span>
+                  <span>
+                    <FaMapMarkerAlt className="me-1 text-danger" />
+                    Location: {course.location}
+                  </span>
+                </div>
+                <div className="d-flex justify-content-end mt-2">
+                  <button
+                    className="btn btn-small btn-outline-danger"
+                    onClick={() => handleDeleteSubscription(course.id)}
+                  >
+                    <FaTrash className="me-2" />
+                    Unsubscribe
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          {subscribedTotalPages > 1 && (
             <div className="pagination-container d-flex justify-content-between align-items-center mt-4">
               <button
                 className="btn btn-outline-primary"
@@ -371,7 +361,6 @@ const StudentCourses: React.FC = () => {
           )}
         </div>
       </div>
-
       <footer className="footer bg-dark text-white mt-auto">
         <div className="container text-center">
           <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
