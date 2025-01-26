@@ -49,7 +49,7 @@ const Navbar: React.FC = () => {
   // Affichage pour la page Home uniquement
   if (location.pathname === '/') {
     return (
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+      <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div className="container">
           <span className="navbar-brand">MLEARN</span>
         </div>
@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
   // Affichage en cas de chargement
   if (isLoading) {
     return (
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+      <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div className="container">
           <span className="navbar-brand">MLEARN</span>
           <div className="ms-auto text-white">Chargement...</div>
@@ -71,7 +71,7 @@ const Navbar: React.FC = () => {
 
   // Affichage dynamique basé sur le rôle
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
       <div className="container">
         <span className="navbar-brand">MLEARN</span>
         <button

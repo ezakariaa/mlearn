@@ -60,7 +60,7 @@ const Course: React.FC = () => {
           {/* Colonne des détails */}
           <div className="col-md-8" style={{ flexBasis: '70%' }}>
             <div className="course-details">
-              <p ><strong style={{ fontFamily:'https://fonts.google.com/specimen/Sora', fontSize:'1.5rem', textAlign: 'left' }}>Description:</strong> <br></br>{course.description}</p>
+              <p ><strong style={{ fontFamily:'https://fonts.google.com/specimen/Sora', fontSize:'3.5rem', textAlign: 'left' }}>Description:</strong> <br></br>{course.description}</p>
               <p><strong>Category:</strong> {course.category}</p>
               <p>
                 <FaClock className="me-2 text-success" />

@@ -86,8 +86,8 @@ const ProfessorCourses: React.FC = () => {
 
   return (
     <div className="professor-page d-flex flex-column min-vh-100">
-      <div className="container mt-3 pt-3">
-        <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="container mt-5 pt-3">
+        <div className="d-flex justify-content-between align-items-center mb-2">
           <h2 className="custom-title">List of your proposed courses</h2>
           <button
             className="btn btn-primary"

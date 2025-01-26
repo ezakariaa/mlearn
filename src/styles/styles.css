@@ -11,7 +11,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  
+ 
 }
 
 /* Navbar */
@@ -37,6 +37,7 @@ body {
   align-items: center;
   min-height: calc(100vh - 100px);
   padding: 20px;
+  
 }
 
 .home-page {

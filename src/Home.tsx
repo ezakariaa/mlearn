@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './styles/styles.css';
+import Navbar from './components/Navbar'; 
 import { FaEnvelope, FaLock } from 'react-icons/fa';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';

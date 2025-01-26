@@ -75,7 +75,7 @@ const CourseStudents: React.FC = () => {
   return (
     <div className="course-students-page d-flex flex-column min-vh-100">
 
-      <div className="container mt-3 pt-3">
+      <div className="container mt-5 pt-3">
         {message && <p className="text-danger">{message}</p>}
 
         {/* Section Informations sur le cours */}
