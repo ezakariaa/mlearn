@@ -42,7 +42,7 @@ The platform connects students with the perfect teacher, enabling them to find p
 
 ![List of Courses](https://github.com/ezakariaa/mlearn/blob/a60fa50c5aeb00bb4bc7866db4bee4acb87a313b/04-ListCourses.png)
 
-![Course Details](https://github.com/ezakariaa/mlearn/blob/a60fa50c5aeb00bb4bc7866db4bee4acb87a313b/05-DetailCourse.png)
+![Course Details](https://github.com/ezakariaa/mlearn/blob/120b06a73afd0cdd15c4e608c5972d4d30d3608b/01-Course.jpg)
 
 
 ## 🤝 Contributing
