@@ -140,7 +140,7 @@ const EditProfile: React.FC = () => {
 
   return (
     <>
-      <div className="container mt-4">
+      <div className="container mt-5 p-3">
         <h1 className="text-center text-primary mb-4" style={{ fontSize: '2rem' }}>Edit Profile</h1>
         <form className="shadow-lg p-4 bg-white rounded" onSubmit={handleSubmit} style={{ fontSize: '0.9rem' }}>
           <div className="row align-items-start">
@@ -304,7 +304,7 @@ const EditProfile: React.FC = () => {
             </button>
           </div>
         </form>
-        <footer className="footer bg-dark text-white mt-3 text-center rounded" style={{ fontSize: '0.8rem' }}>
+        <footer className="footer bg-dark text-white mt-3 text-center" style={{ fontSize: '0.8rem' }}>
           <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
         </footer>
       </div>

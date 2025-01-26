@@ -168,12 +168,12 @@ const StudentCourses: React.FC = () => {
 
   return (
     <div className="student-courses-page d-flex flex-column min-vh-100">
-      <div className="container mt-3 pt-3">
+      <div className="container mt-3 pt-5">
         {/* Browse Available Courses */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="custom-title">Browse Available Courses</h2>
           <div className="filter-container d-flex align-items-center">
-            <label className="me-2">Sort by:</label>
+            <label className="me-1">Sort by:</label>
             <select
               className="form-select"
               onChange={(e) => handleFilterChange(e.target.value)}

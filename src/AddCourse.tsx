@@ -68,8 +68,8 @@ const AddCourse: React.FC = () => {
   };
 
   return (
-    <div className="add-course-page d-flex flex-column min-vh-100">
-      <div className="container mt-4">
+    <div className="add-course-page d-flex flex-column min-vh-100 p-3">
+      <div className="container mt-4 p-3">
         <h2 className="custom-title mb-4">Add a New Course</h2>
 
         {message && <p className={`text-${message.includes('success') ? 'success' : 'danger'}`}>{message}</p>}
@@ -174,14 +174,24 @@ const AddCourse: React.FC = () => {
                 required
               />
             </div>
-            <button type="submit" className="btn btn-primary w-100">
-              Add Course
-            </button>
+            {/* Boutons alignés à droite */}
+            <div className="form-group mb-3 d-flex justify-content-end">
+              <button type="submit" className="btn btn-primary btn-sm me-2">
+                Add Course
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => navigate('/professor-courses')}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </form>
       </div>
 
-      <footer className="footer bg-dark text-white py-3 mt-auto">
+      <footer className="footer bg-dark text-white mt-auto">
         <div className="container text-center">
           <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
         </div>

@@ -44,8 +44,8 @@ const Course: React.FC = () => {
 
   return (
     <div className="course-page d-flex flex-column min-vh-100">
-      <div className="container mt-4">
-        <h1 className="mb-4" style={{ fontFamily:'https://fonts.google.com/specimen/Sora', fontSize:'3.5rem', textAlign: 'left' }}>{course.title}</h1>
+      <div className="container mt-5">
+        <h1 className="mb-5" style={{ fontFamily:'https://fonts.google.com/specimen/Sora', fontSize:'4rem', textAlign: 'left' }}>{course.title}</h1>
         <div className="row">
           {/* Colonne de l'image */}
           <div className="col-md-4" style={{ flexBasis: '30%' }}>
@@ -60,7 +60,7 @@ const Course: React.FC = () => {
           {/* Colonne des détails */}
           <div className="col-md-8" style={{ flexBasis: '70%' }}>
             <div className="course-details">
-              <p ><strong style={{ fontFamily:'https://fonts.google.com/specimen/Sora', fontSize:'3.5rem', textAlign: 'left' }}>Description:</strong> <br></br>{course.description}</p>
+              <p ><strong style={{ fontFamily:'https://fonts.google.com/specimen/Sora', fontSize:'2rem', textAlign: 'left' }}>Description:</strong> <br></br>{course.description}</p>
               <p><strong>Category:</strong> {course.category}</p>
               <p>
                 <FaClock className="me-2 text-success" />
@@ -79,7 +79,7 @@ const Course: React.FC = () => {
         </div>
       </div>
 
-      <footer className="footer bg-dark text-white py-3 mt-auto">
+      <footer className="footer bg-dark text-white mt-auto">
         <div className="container text-center">
           <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
         </div>

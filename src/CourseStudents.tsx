@@ -97,7 +97,7 @@ const CourseStudents: React.FC = () => {
                 )}
               </div>
               <div>
-                <h3 style={{ fontSize: '24px', fontWeight: 'bold' }}>{course.title}</h3>
+                <h3 style={{ fontSize: '34px', fontWeight: 'bold' }}>{course.title}</h3>
                 <p>
                   <strong>Description:</strong> <span style={{ fontSize: '14px' }}>{course.description}</span>
                 </p>
@@ -164,7 +164,7 @@ const CourseStudents: React.FC = () => {
         </div>
       </div>
 
-      <footer className="footer bg-dark text-white py-3 mt-auto">
+      <footer className="footer bg-dark text-white mt-auto">
         <div className="container text-center">
           <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
         </div>

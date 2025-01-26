@@ -81,7 +81,7 @@ const ProfessorProfile: React.FC = () => {
 
   return (
     <>
-      <div className="container mt-5 mb-auto">
+      <div className="container mt-5 p-3 mb-auto">
         <div className="row">
           <div className="col-md-4 text-center">
             <img

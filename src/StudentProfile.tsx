@@ -86,7 +86,7 @@ const StudentProfile: React.FC = () => {
   }
 
   return (
-    <div className="container mt-5 mb-auto">
+    <div className="container mt-5 p-3 mb-auto">
       <div className="row">
         {/* Colonne gauche : Informations utilisateur */}
         <div className="col-md-4 text-center">
@@ -222,7 +222,7 @@ const StudentProfile: React.FC = () => {
           </ul>
         </div>
       </div>
-      <footer className="footer bg-dark text-white py-2 mt-3 text-center rounded">
+      <footer className="footer bg-dark text-white text-center">
         <p style={{ fontSize: '0.8rem' }}>
           &copy; Zakaria ELORCHE & Badr Toumani - ALX Project
         </p>

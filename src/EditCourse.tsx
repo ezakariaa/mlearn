@@ -98,8 +98,8 @@ const EditCourse: React.FC = () => {
   };
 
   return (
-    <div className="edit-course-page d-flex flex-column min-vh-100">
-      <div className="container mt-4">
+    <div className="edit-course-page d-flex flex-column p-3 min-vh-100">
+      <div className="container mt-5">
         <h2 className="custom-title mb-4">Edit Course</h2>
 
         {/* Message de succès ou d'erreur */}
@@ -157,7 +157,7 @@ const EditCourse: React.FC = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 required
-                style={{ minHeight: '280px' }} // Zone de texte agrandie
+                style={{ minHeight: '280px' }}
               ></textarea>
             </div>
             <div className="form-group mb-3">
@@ -202,28 +202,15 @@ const EditCourse: React.FC = () => {
               />
             </div>
 
-            {/* Boutons Update et Cancel */}
-            <div className="d-flex justify-content-center gap-3">
-              <button
-                type="submit"
-                className="btn btn-primary btn-sm"
-                style={{
-                  fontSize: '0.85rem',
-                  padding: '8px 15px',
-                  borderRadius: '5px',
-                }}
-              >
+            {/* Boutons Update et Cancel alignés à droite */}
+            <div className="form-group mb-3 d-flex justify-content-end">
+              <button type="submit" className="btn btn-primary btn-sm me-2">
                 Update Course
               </button>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
                 onClick={handleCancel}
-                style={{
-                  fontSize: '0.85rem',
-                  padding: '8px 15px',
-                  borderRadius: '5px',
-                }}
               >
                 Cancel
               </button>
@@ -232,7 +219,7 @@ const EditCourse: React.FC = () => {
         </form>
       </div>
 
-      <footer className="footer bg-dark text-white py-3 mt-auto">
+      <footer className="footer bg-dark text-white mt-auto">
         <div className="container text-center">
           <p>&copy; Zakaria ELORCHE & Badr Toumani - ALX Project</p>
         </div>
